@@ -81,6 +81,14 @@ doc_events = {
 	}
 }
 
+# Envío automático al SRI: corre cada minuto y decide según el cron de
+# Regional Settings Ec (send_sri_auto / send_sri_cron / send_sri_batch_docs)
+scheduler_events = {
+	"cron": {
+		"* * * * *": ["erpnext_ec.utilities.sri_auto.enviar_pendientes"],
+	},
+}
+
 on_session_creation = [
 	"erpnext_ec.utilities.tools.on_login_auto",
 ]
