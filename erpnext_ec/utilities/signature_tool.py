@@ -141,13 +141,31 @@ class SriXmlData():
         appPath = dir_path + "/apps/XadesSignerCmd/XadesSignerCmd"
         tmpFolder = dir_path + "/apps/XadesSignerCmd/" 
 
-        p = subprocess.Popen([appPath,
-                              '--fileinput', tmp_xml ,
-                              '--p12', p12,
-                              '--password', password,
-                              '--output', output_xml])
+        # El binario fue compilado para .NET 6 (EOL); se permite correr en el runtime
+        # mayor más reciente instalado (probado con .NET 8 y 10).
+        env = dict(os.environ)
+        env.setdefault('DOTNET_ROLL_FORWARD', 'LatestMajor')
 
-        res = p.communicate()
+        if not os.path.isfile(appPath) or not os.access(appPath, os.X_OK):
+            frappe.throw(f"Firmador no encontrado o sin permiso de ejecución: {appPath}")
+
+        try:
+            p = subprocess.run([appPath,
+                                '--fileinput', tmp_xml,
+                                '--p12', p12,
+                                '--password', password,
+                                '--output', output_xml],
+                               env=env, capture_output=True, text=True, timeout=120)
+        except Exception as e:
+            frappe.throw(f"No se pudo ejecutar XadesSignerCmd: {e}")
+
+        if p.returncode != 0 or not os.path.isfile(output_xml):
+            detalle = (p.stderr or p.stdout or '').strip()[-1500:]
+            try:
+                os.remove(tmp_xml)
+            except Exception:
+                pass
+            frappe.throw(f"XadesSignerCmd falló (código {p.returncode}):<br><pre>{frappe.utils.escape_html(detalle)}</pre>")
 
         #Leer XML Firmado
         file = open(output_xml, "r")
