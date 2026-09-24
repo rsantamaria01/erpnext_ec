@@ -225,6 +225,15 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 		print('Se usará email de documento')
 		recipients = doc_data.customer_email_id
 
+	# Dummy Email Send: en pruebas, todo correo va al destino de prueba, nunca al cliente
+	company_object = frappe.get_last_doc('Company', filters = { 'name': doc_data.company })
+	if company_object.regional_settings_ec:
+		rs = frappe.get_cached_doc('Regional Settings Ec', company_object.regional_settings_ec)
+		if rs.dummy_email_send:
+			if not rs.dummy_email_target:
+				frappe.throw(_("Dummy Email Send está activo pero no hay correo destino de prueba."))
+			recipients = rs.dummy_email_target
+
 	print("recipients final:")
 	print(recipients)
 	#var url = `${btApiServer}/api/Tool/AddToEmailQuote/${doc}?tip_doc=FAC&sitename=${sitenameVar}&email_to=${values.email_to}`;
@@ -815,30 +824,25 @@ def processAuthorization(doc_data,
 
 	return response_json_auto_final
 
-def BuildSimulationResponse():
-	
-	response_json_auto = {
-		"claveAccesoConsultada": "1111122222333334444455555666667777788888999990000",
+def BuildSimulationResponse(clave_acceso=None, signed_ok=False):
+	clave = clave_acceso or "1111122222333334444455555666667777788888999990000"
+	return {
+		"claveAccesoConsultada": clave,
 		"numeroComprobantes": "1",
 		"autorizaciones": {
-			"autorizacion": [
-				{
-					"estado": "AUTORIZADO",
-					"numeroAutorizacion": "1111122222333334444455555666667777788888999990000",
-					"fechaAutorizacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-					"ambiente": "PRODUCCIÓN",
-					"comprobante": "<?xml version=\"1.0\" encoding=\"utf-8\"?><factura xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"comprobante\" version=\"1.0.0\"><infoTributaria><ambiente>2</ambiente><tipoEmision>1</tipoEmision><razonSocial>RONALD STALIN CHONILLO VILLON</razonSocial><nombreComercial>RONALD STALIN CHONILLO VILLON</nombreComercial><ruc>0919826958001</ruc><claveAcceso>2802202301091982695800120010020000000321234567811</claveAcceso><codDoc>01</codDoc><estab>001</estab><ptoEmi>002</ptoEmi><secuencial>000000032</secuencial><dirMatriz>GUAYAQUIL BOSQUES DE LA COSTA, MZ 190 V 22</dirMatriz><contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe></infoTributaria></factura>",
-					"mensajes": {
-						"mensaje": []
-					}
-				}
-			]
+			"autorizacion": {
+				"estado": "AUTORIZADO",
+				"numeroAutorizacion": clave,
+				"fechaAutorizacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+				"ambiente": "SIMULACION",
+				"mensajes": {"mensaje": []},
+			}
 		},
+		"simulacion": True,
+		"xml_firmado": signed_ok,
 		"error": None,
-		"ok": True
+		"ok": True,
 	}
-	
-	return response_json_auto
 
 @frappe.whitelist()
 def send_doc_native(doc, typeDocSri, doctype_erpnext, siteName):
@@ -852,10 +856,6 @@ def send_doc_native(doc, typeDocSri, doctype_erpnext, siteName):
 	
 	if (doc_data):
 		company_object = frappe.get_last_doc('Company', filters = { 'name': doc_data.company  })
-
-		if(company_object.use_simulation_mode):
-			print('SE USARA MODO DE SIMULACION')
-			return BuildSimulationResponse()
 
 		sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'id': doc_data.ambiente })
 
@@ -901,10 +901,6 @@ def send_doc_internal(doc, typeDocSri, doctype_erpnext, siteName, regional_setti
 	if (doc_data):
 		company_object = frappe.get_last_doc('Company', filters = { 'name': doc_data.company  })
 
-		if(company_object.use_simulation_mode):
-			print('SE USARA MODO DE SIMULACION')
-			return BuildSimulationResponse()
-
 		sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'id': doc_data.ambiente })
 		print(sri_environment.name)
 		print(sri_environment.id)
@@ -933,6 +929,11 @@ def send_doc_internal(doc, typeDocSri, doctype_erpnext, siteName, regional_setti
 			signed_xml =XadesToolV4.sign_xml(SriXmlData, xml_string, doc_data, sri_signatures[0])
 	
 		print(xml_string)
+
+		if(company_object.use_simulation_mode):
+			# Simulación: se construyó el XML y se firmó, pero NO se envía al SRI
+			frappe.log_error(title=f"SRI simulación {doc_data.name}", message=signed_xml)
+			return BuildSimulationResponse(doc_data.claveAcceso, bool(signed_xml))
 		
 		#signed_xml = build_xml_signed(xml_string, doc_data, signatureP12)
 		#signed_xml = SriXmlData.sign_xml_old(SriXmlData, xml_string, signatureP12)  		
