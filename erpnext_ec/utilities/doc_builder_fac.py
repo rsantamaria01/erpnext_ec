@@ -284,7 +284,8 @@ def build_doc_fac_sri(data_object):
 	# Ficha Técnica SRI 2.34 (julio 2026) - Anexo 25: placa del vehículo para
 	# operadoras de transporte comercial (entre <moneda> y <pagos>)
 	placa = getattr(data_object, 'sri_placa', None)
-	if placa:
+	# el campo viene con default "0"; "0" o vacío = sin placa
+	if placa and str(placa).strip() not in ("0", ""):
 		placa = re.sub(r"[\s-]", "", str(placa)).upper()
 	else:
 		placa = None
@@ -317,7 +318,7 @@ def build_doc_fac_sri(data_object):
             "totalDescuento": "{:.2f}".format(data_object.totalDescuento),
             "totalConImpuestos": totalConImpuestos,
             "propina": "0.00",
-            "importeTotal": data_object.grand_total,
+            "importeTotal": "{:.2f}".format(data_object.grand_total),
             "moneda": "DOLAR",
         },
         "detalles": {

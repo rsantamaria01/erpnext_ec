@@ -3,6 +3,7 @@
 
 from datetime import datetime
 import frappe
+import frappe.utils
 from frappe import _
 import json
 from types import SimpleNamespace
@@ -93,6 +94,23 @@ def get_payments_sri(doc_name):
         # print(paymentsApi)
 
         if not paymentsApi and  not paymentsEntryReferenceApi:
+            # Venta a crédito sin pago aún: se usa el calendario de pagos de la factura
+            # (forma de pago + plazo en días desde la fecha de emisión)
+            schedule = frappe.get_all('Payment Schedule',
+                                      fields=['mode_of_payment', 'payment_amount', 'due_date'],
+                                      filters={'parent': doc_name, 'parenttype': 'Sales Invoice'},
+                                      order_by='idx asc')
+            if schedule:
+                posting_date = frappe.db.get_value('Sales Invoice', doc_name, 'posting_date')
+                resultados = []
+                for row in schedule:
+                    plazo = 0
+                    if row.due_date and posting_date:
+                        plazo = max((frappe.utils.getdate(row.due_date) - frappe.utils.getdate(posting_date)).days, 0)
+                    resultados.append(frappe._dict(mode_of_payment=row.mode_of_payment,
+                                                   grand_total=row.payment_amount,
+                                                   plazo=plazo))
+                return resultados
             sri_validated = 'error'
             sri_validated_message += 'No se ha definido ni solicitud de pago ni entrada de pago-'
         else:
@@ -124,7 +142,7 @@ def build_pagos(paymentResults):
                 pago_item = {}
                 pago_item['formaPago'] = mode_of_payment[0].formapago
                 pago_item['formaPagoDescripcion'] = mode_of_payment[0].name
-                pago_item['plazo'] = 0
+                pago_item['plazo'] = paymentEntry.get('plazo') or 0
                 pago_item['unidadTiempo'] = 'dias'
 
                 if (not paymentEntry.grand_total is None):
@@ -400,6 +418,54 @@ def get_full_supplier_sri(def_customer):
         return supplier_sri
 
 
+def build_item_impuestos(item, doc_parent):
+    """Impuestos por ítem para el XML del SRI.
+
+    ERPNext v16 reemplazó el JSON `item_wise_tax_detail` de cada fila de impuestos
+    por la tabla hija `Item Wise Tax Detail` (item_row, tax_row, rate, amount,
+    taxable_amount). Se lee de ahí; si no existe (v15) se usa el JSON antiguo.
+    """
+    impuestos = []
+    taxes_by_row = {t.name: t for t in (doc_parent.taxes or [])}
+
+    details = []
+    if frappe.db.table_exists("Item Wise Tax Detail"):
+        details = frappe.get_all("Item Wise Tax Detail",
+                                 filters={"parent": doc_parent.name, "item_row": item.name},
+                                 fields=["tax_row", "rate", "amount", "taxable_amount"],
+                                 order_by="idx asc")
+
+    if details:
+        for d in details:
+            tax = taxes_by_row.get(d.tax_row)
+            if not tax or getattr(tax, "sricode", None) is None:
+                continue
+            impuestos.append({
+                "codigo": tax.sricode,
+                "codigoPorcentaje": tax.codigoPorcentaje,
+                "tarifa": tax.rate,
+                "baseImponible": d.taxable_amount if d.taxable_amount is not None else item.net_amount,
+                "valor": d.amount or 0,
+            })
+        return impuestos
+
+    # Compatibilidad v15: JSON {item_code: [rate, amount]} en cada fila de impuestos
+    for tax in (doc_parent.taxes or []):
+        raw = getattr(tax, "item_wise_tax_detail", None)
+        if not raw:
+            continue
+        detail = json.loads(raw)
+        if item.item_code in detail and getattr(tax, "sricode", None) is not None:
+            impuestos.append({
+                "codigo": tax.sricode,
+                "codigoPorcentaje": tax.codigoPorcentaje,
+                "tarifa": tax.rate,
+                "baseImponible": item.net_amount,
+                "valor": detail[item.item_code][1],
+            })
+    return impuestos
+
+
 def get_full_items(doc_name, doc_parent):
 
     items = frappe.get_all('Sales Invoice Item',
@@ -422,38 +488,7 @@ def get_full_items(doc_name, doc_parent):
             # para transferencia local de materiales de construcción y transporte comercial
             item.codigoAuxiliar = frappe.db.get_value("Item", item.item_code, "codigo_auxiliar_sri") or ""
 
-            #if(item.item_tax_template is None):
-            for itemOfTax in doc_parent.taxes:
-                if(not itemOfTax.item_wise_tax_detail is None):
-                    
-                    #print(itemOfTax.item_wise_tax_detail)
-
-                    json_item_wise_tax_detail = json.loads(itemOfTax.item_wise_tax_detail)
-                    
-                    for key_item in list(json_item_wise_tax_detail.keys()):
-                        print("key_item")
-                        print (key_item)
-                    
-                        #print(json_item_wise_tax_detail)
-                        #key_item = list(json_item_wise_tax_detail.keys())[0]
-
-                        if(item.item_code == key_item):                            
-                            #print(key_item)
-                            #print(json_item_wise_tax_detail[key_item][0])
-                            item_impuesto_valor = json_item_wise_tax_detail[key_item][1]
-
-                            print(f'Encontrado {item.item_code} {item_impuesto_valor}')
-                            
-                            #TODO: Chequear la base imponible, posibles casos especiales
-                            new_tax_item = {
-                                    "codigo": itemOfTax.sricode,
-                                    "codigoPorcentaje": itemOfTax.codigoPorcentaje,
-                                    "tarifa": itemOfTax.rate,
-                                    "baseImponible": item.net_amount,  #base_amount, base_net_amount, qty * rate
-                                    "valor": item_impuesto_valor                            
-                            }
-
-                            item.impuestos.append(new_tax_item)
+            item.impuestos = build_item_impuestos(item, doc_parent)
                             
                 #if (not doc_parent.taxes_and_charges is None):
                 #    item["item_tax_template"] = doc_parent.taxes_and_charges 
@@ -494,38 +529,7 @@ def get_full_items_purchase_receipt(doc_name, doc_parent):
             item.precioUnitario = item.base_price_list_rate #rate #precio del item
             item.precioTotalSinImpuesto = item.base_net_amount #subtotal del item
 
-            #if(item.item_tax_template is None):
-            for itemOfTax in doc_parent.taxes:
-                if(not itemOfTax.item_wise_tax_detail is None):
-                    
-                    #print(itemOfTax.item_wise_tax_detail)
-
-                    json_item_wise_tax_detail = json.loads(itemOfTax.item_wise_tax_detail)
-                    
-                    for key_item in list(json_item_wise_tax_detail.keys()):
-                        print("key_item")
-                        print (key_item)
-                    
-                        #print(json_item_wise_tax_detail)
-                        #key_item = list(json_item_wise_tax_detail.keys())[0]
-
-                        if(item.item_code == key_item):                            
-                            #print(key_item)
-                            #print(json_item_wise_tax_detail[key_item][0])
-                            item_impuesto_valor = json_item_wise_tax_detail[key_item][1]
-
-                            print(f'Encontrado {item.item_code} {item_impuesto_valor}')
-                            
-                            #TODO: Chequear la base imponible, posibles casos especiales
-                            new_tax_item = {
-                                    "codigo": itemOfTax.sricode,
-                                    "codigoPorcentaje": itemOfTax.codigoPorcentaje,
-                                    "tarifa": itemOfTax.rate,
-                                    "baseImponible": item.net_amount,  #base_amount, base_net_amount, qty * rate
-                                    "valor": item_impuesto_valor                            
-                            }
-
-                            item.impuestos.append(new_tax_item)
+            item.impuestos = build_item_impuestos(item, doc_parent)
         
         doc_parent.totalDescuento = total_items_discount
     return items
@@ -547,38 +551,7 @@ def get_full_items_purchase_invoice(doc_name, doc_parent):
             item.precioUnitario = item.base_price_list_rate #rate #precio del item
             item.precioTotalSinImpuesto = item.base_net_amount #subtotal del item
 
-            #if(item.item_tax_template is None):
-            for itemOfTax in doc_parent.taxes:
-                if(not itemOfTax.item_wise_tax_detail is None):
-                    
-                    #print(itemOfTax.item_wise_tax_detail)
-
-                    json_item_wise_tax_detail = json.loads(itemOfTax.item_wise_tax_detail)
-                    
-                    for key_item in list(json_item_wise_tax_detail.keys()):
-                        print("key_item")
-                        print (key_item)
-                    
-                        #print(json_item_wise_tax_detail)
-                        #key_item = list(json_item_wise_tax_detail.keys())[0]
-
-                        if(item.item_code == key_item):                            
-                            #print(key_item)
-                            #print(json_item_wise_tax_detail[key_item][0])
-                            item_impuesto_valor = json_item_wise_tax_detail[key_item][1]
-
-                            print(f'Encontrado {item.item_code} {item_impuesto_valor}')
-                            
-                            #TODO: Chequear la base imponible, posibles casos especiales
-                            new_tax_item = {
-                                    "codigo": itemOfTax.sricode,
-                                    "codigoPorcentaje": itemOfTax.codigoPorcentaje,
-                                    "tarifa": itemOfTax.rate,
-                                    "baseImponible": item.net_amount,  #base_amount, base_net_amount, qty * rate
-                                    "valor": item_impuesto_valor                            
-                            }
-
-                            item.impuestos.append(new_tax_item)
+            item.impuestos = build_item_impuestos(item, doc_parent)
         
         doc_parent.totalDescuento = total_items_discount
     return items
