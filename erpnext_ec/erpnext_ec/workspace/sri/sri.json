@@ -4,6 +4,7 @@
  "label": "SRI",
  "title": "SRI",
  "module": "Erpnext Ec",
+ "type": "Workspace",
  "icon": "project",
  "public": 1,
  "sequence_id": 10,
@@ -42,5 +43,5 @@
  "links": [],
  "charts": [],
  "number_cards": [],
- "content": "[{\"id\": \"sri-header\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Configuración SRI</b></span>\", \"col\": 12}}, {\"id\": \"sri-spacer\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"sri-card-1\", \"type\": \"card\", \"data\": {\"card_name\": \"Firmas Electrónicas\", \"col\": 4}}, {\"id\": \"sri-card-2\", \"type\": \"card\", \"data\": {\"card_name\": \"Retenciones\", \"col\": 4}}, {\"id\": \"sri-card-3\", \"type\": \"card\", \"data\": {\"card_name\": \"Secuencias\", \"col\": 4}}, {\"id\": \"sri-card-4\", \"type\": \"card\", \"data\": {\"card_name\": \"Establecimiento\", \"col\": 4}}, {\"id\": \"sri-card-5\", \"type\": \"card\", \"data\": {\"card_name\": \"Punto de Emisión\", \"col\": 4}}, {\"id\": \"sri-card-6\", \"type\": \"card\", \"data\": {\"card_name\": \"Estado\", \"col\": 4}}]"
+ "content": "[{\"id\": \"sri-header\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Configuración SRI</b></span>\", \"col\": 12}}, {\"id\": \"sri-spacer\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"sri-sc-1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Firmas Electrónicas\", \"col\": 4}}, {\"id\": \"sri-sc-2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Retenciones\", \"col\": 4}}, {\"id\": \"sri-sc-3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Secuencias\", \"col\": 4}}, {\"id\": \"sri-sc-4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Establecimiento\", \"col\": 4}}, {\"id\": \"sri-sc-5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Punto de Emisión\", \"col\": 4}}, {\"id\": \"sri-sc-6\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Estado\", \"col\": 4}}]"
 }
