@@ -6,35 +6,47 @@
  "document_type": "Document", 
  "show_name_in_global_search": 1,
  "engine": "InnoDB",
- "title_field": "description",
- "show_title_field_in_link": 1,
  "field_order": [
-  "sri_id",
+  "id",
   "description"
  ],
  "fields": [
   {
    "allow_in_quick_entry": 1,
-   "fieldname": "sri_id",
-   "fieldtype": "Data",
+   "fieldname": "id",
+   "fieldtype": "Int",
    "in_list_view": 1,
    "in_preview": 1,
-   "label": "Sri Id"
+   "label": "Id"   
   },
   {
     "fieldname": "description",
-    "fieldtype": "Data",
+    "fieldtype": "Small Text",
     "in_list_view": 1,
     "in_preview": 1,
     "label": "Description"
-  }  
+  },
+  {
+    "fieldname": "service_url_recept",
+    "fieldtype": "Small Text",
+    "in_list_view": 1,
+    "in_preview": 1,
+    "label": "Service Url Recept"
+  },
+  {
+    "fieldname": "service_url_authorize",
+    "fieldtype": "Small Text",
+    "in_list_view": 1,
+    "in_preview": 1,
+    "label": "Service Url Authorize"
+  }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
  "modified": "2023-12-21 03:17:38.359596",
  "modified_by": "Administrator",
- "module": "Erpnext Sri",
- "name": "Sri Type Id",
+ "module": "Erpnext Ec",
+ "name": "Sri Environment",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
@@ -63,9 +75,8 @@
    "write": 1
   }
  ],
- "sort_field": "sri_id",
- "sort_order": "ASC",
+ "sort_field": "modified",
+ "sort_order": "DESC",
  "states": [],
- "search_fields": "sri_id, description", 
  "track_changes": 1
 }

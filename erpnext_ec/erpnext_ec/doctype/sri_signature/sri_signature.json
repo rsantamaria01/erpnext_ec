@@ -1,40 +1,44 @@
 {
  "actions": [],
- "autoname": "format:{####}",
+ "autoname": "format:SSG-{YYYY}-{#####}",
  "creation": "2023-12-21 01:27:30.810619",
  "doctype": "DocType",
- "document_type": "Document", 
+ "document_type": "Document",
  "show_name_in_global_search": 1,
  "engine": "InnoDB",
  "field_order": [
   "id",
-  "description"
+  "tax_id"
  ],
- "fields": [
+ "fields": [  
   {
-   "allow_in_quick_entry": 1,
-   "fieldname": "id",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_preview": 1,
-   "label": "Id",
-   "translatable": 0,
-   "unique": 1
-  },
-  {
-    "fieldname": "description",
+    "fieldname": "tax_id",
     "fieldtype": "Data",
     "in_list_view": 1,
     "in_preview": 1,
-    "label": "Description"
+    "label": "Ced/Ruc"
+  },
+  {
+    "fieldname": "password",
+    "fieldtype": "Password",
+    "in_list_view": 1,
+    "in_preview": 1,
+    "label": "Contraseña"
+  },
+  {
+    "fieldname": "p12",
+    "fieldtype": "Attach",
+    "in_list_view": 0,
+    "in_preview": 0,
+    "label": "Firma"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
  "modified": "2023-12-21 03:17:38.359596",
  "modified_by": "Administrator",
- "module": "Erpnext Sri",
- "name": "Sri External Establishment",
+ "module": "Erpnext Ec",
+ "name": "Sri Signature",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
@@ -51,11 +55,8 @@
    "write": 1
   }
  ],
- "title": "id",
- "title_field": "id",
- "search_fields": "id, description",
- "sort_field": "id",
- "sort_order": "ASC",
+ "sort_field": "modified",
+ "sort_order": "DESC",
  "states": [],
  "track_changes": 1
 }
