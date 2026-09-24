@@ -184,25 +184,14 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 	attach_file_name = doc_data.estab + doc_data.ptoemi + f'{doc_data.secuencial:09d}'
 
 	attachments = []
-	#Attach Zip with XMl
+	#Adjuntar el XML autorizado tal cual (.xml), que es lo que esperan los
+	#sistemas contables de los clientes; antes iba comprimido en .zip
 	if(xml_responses):
-		
-		attach_file_name_zip = attach_file_name + '.zip' #doc_data.numeroautorizacion + '.zip'
-		attach_file_name_xml = attach_file_name + '.xml' #doc_data.numeroautorizacion + '.xml'
-		
+		attach_file_name_xml = attach_file_name + '.xml'
 		xml_data = xml_responses[0].xmldata
-		import io
-		import zipfile
-		#file_like_object = io.BytesIO(b"{xml_data}")
-		archive = io.BytesIO()
-		with zipfile.ZipFile(archive, 'w') as zip_archive:
-			zip_archive.writestr( attach_file_name_xml, xml_data)
-			#with zip_archive.open('authorized.xml', 'w') as file1:
-				#file1.write(file_like_object)
-				#file1.write(b"{xml_data}")
-				#print(archive.getvalue())
-		
-		attachments.append({"fname": attach_file_name_zip, "fcontent": archive.getvalue()})
+		if isinstance(xml_data, str):
+			xml_data = xml_data.encode('utf-8')
+		attachments.append({"fname": attach_file_name_xml, "fcontent": xml_data})
 	
 	#Attach PDF
 	attach_file_name_pdf = attach_file_name
