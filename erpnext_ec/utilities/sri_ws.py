@@ -6,6 +6,7 @@
 from datetime import datetime, date, timedelta
 import time
 import frappe
+import frappe.utils
 from frappe import _
 import erpnext
 #from frappe.utils.pdf import get_pdf
@@ -188,7 +189,7 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 	#sistemas contables de los clientes; antes iba comprimido en .zip
 	if(xml_responses):
 		attach_file_name_xml = attach_file_name + '.xml'
-		xml_data = xml_responses[0].xmldata
+		xml_data = construir_xml_autorizado(xml_responses[0].xmldata, doc_data) or xml_responses[0].xmldata
 		if isinstance(xml_data, str):
 			xml_data = xml_data.encode('utf-8')
 		attachments.append({"fname": attach_file_name_xml, "fcontent": xml_data})
@@ -763,7 +764,7 @@ def processAuthorization(doc_data,
 	response_ok = response_auto.ok
 
 	if(response_auto.status_code == 400):
-		registerResponse_native(doc_data, typeDocSri, doctype_erpnext, response_json_auto_comprobantes, response_xml_data_string)
+		registerResponse_native(doc_data, typeDocSri, doctype_erpnext, response_json_auto_comprobantes, response_xml_data_string, omitir_email=True)
 		if(response_json_auto_comprobantes.numeroComprobantes is not None and int(response_json_auto_comprobantes.numeroComprobantes) > 0):
 			#if( not response_json_auto_comprobantes.error is None and  'ya estaba autorizada' in response_json_auto_comprobantes.error):
 			
@@ -775,7 +776,7 @@ def processAuthorization(doc_data,
 	if(response_auto.status_code == 200):
 		
 		#registerResponse(doc_data, typeDocSri, doctype_erpnext, response_json, response.text)
-		registerResponse_native(doc_data, typeDocSri, doctype_erpnext, response_json_auto_comprobantes, response_xml_data_string)
+		registerResponse_native(doc_data, typeDocSri, doctype_erpnext, response_json_auto_comprobantes, response_xml_data_string, omitir_email=True)
 
 		#evaluar estado de respuesta SRI
 		if(response_ok and int(response_json_auto_comprobantes['numeroComprobantes']) > 0):
@@ -794,6 +795,10 @@ def processAuthorization(doc_data,
 			if(response_json_auto_comprobantes['autorizaciones']['autorizacion']['estado'] == "AUTORIZADO"):
 				#updateStatusDocument(doc_object_build, typeDocSri, response_json)
 				updateStatusDocument_native(doc_data, typeDocSri, response_json_auto_comprobantes)
+				#El correo se envía recién aquí, cuando el documento ya tiene número y
+				#fecha de autorización; antes salía desde after_insert de Xml Responses
+				#y el RIDE adjunto decía "PENDIENTE".
+				enviar_email_autorizado(doc_data, typeDocSri, doctype_erpnext)
 	
 	response_json_auto_final['ok'] = True
 	if(message_identificador == '43' or message_identificador == '65'):		
@@ -1137,7 +1142,7 @@ def updateStatusDocument(doc, typeDocSri, response_json):
 
 				document_object.db_set('fechaautorizacion', fechaAutorizacion)
 
-def registerResponse_native(doc, typeDocSri, doctype_erpnext, response_json, response_json_text):
+def registerResponse_native(doc, typeDocSri, doctype_erpnext, response_json, response_json_text, omitir_email=False):
 	#TODO: El XML se guarda de forma incorrecta, pero al parecer es un comportamiento normal
 	# del frappe, hay que verificar.
 	sri_status = ''
@@ -1150,18 +1155,126 @@ def registerResponse_native(doc, typeDocSri, doctype_erpnext, response_json, res
 	if('estado' in response_json):
 		sri_status = response_json['estado']
 
+	#Si está autorizado se guarda el XML en el formato estándar del SRI
+	#(<autorizacion> con el comprobante en CDATA), no la respuesta SOAP
+	if sri_status == 'AUTORIZADO':
+		response_json_text = construir_xml_autorizado(response_json_text) or response_json_text
+
 	xml_response_new = frappe.get_doc({
 					'doctype': 'Xml Responses',
 					'doc_ref': doc.name,
-					#'xmldata': response_json.autorizaciones.autorizacion[0].comprobante,
 					'xmldata': response_json_text,
 					'sri_status': sri_status,
 					'tip_doc': typeDocSri,
 					'doc_type': doctype_erpnext
 				})
 
+	xml_response_new.flags.omitir_email = omitir_email
 	xml_response_new.insert()
+	#insert() pasa el texto por el filtro XSS de Frappe, que borra las etiquetas
+	#del XML; se reescribe el valor crudo directamente en la base
+	xml_response_new.db_set('xmldata', response_json_text, update_modified=False)
 	frappe.db.commit()
+
+
+def construir_xml_autorizado(xmldata, doc_data=None):
+	"""Devuelve el XML autorizado en el formato estándar del SRI:
+
+	<autorizacion>
+	  <estado/> <numeroAutorizacion/> <fechaAutorizacion/> <ambiente/>
+	  <comprobante><![CDATA[ ...comprobante firmado... ]]></comprobante>
+	</autorizacion>
+
+	Acepta la respuesta SOAP del web service de autorización, un XML ya en
+	formato estándar, o un registro antiguo al que el filtro XSS le quitó las
+	etiquetas (en ese caso los datos de autorización se toman de doc_data).
+	Devuelve None si no encuentra el comprobante.
+	"""
+	import html as _html
+
+	if not xmldata:
+		return None
+	if isinstance(xmldata, bytes):
+		xmldata = xmldata.decode('utf-8', errors='replace')
+	txt = xmldata
+
+	def _tag(nombre):
+		m = re.search(r'<%s>(.*?)</%s>' % (nombre, nombre), txt, re.S)
+		return m.group(1).strip() if m else None
+
+	def _dato(*campos):
+		if doc_data is None:
+			return None
+		for campo in campos:
+			valor = doc_data.get(campo) if hasattr(doc_data, 'get') else getattr(doc_data, campo, None)
+			if valor and str(valor) != '0':
+				return valor
+		return None
+
+	comprobante = None
+	m = re.search(r'<comprobante>(.*?)</comprobante>', txt, re.S)
+	if m:
+		comprobante = m.group(1).strip()
+		if comprobante.startswith('<![CDATA['):
+			comprobante = comprobante[len('<![CDATA['):]
+			if comprobante.endswith(']]>'):
+				comprobante = comprobante[:-3]
+		else:
+			comprobante = _html.unescape(comprobante)
+	else:
+		i = txt.find('&lt;?xml')
+		if i < 0:
+			return None
+		comprobante = _html.unescape(txt[i:])
+
+	comprobante = comprobante.strip()
+	m_raiz = re.match(r'<\?xml[^>]*\?>\s*<([A-Za-z]+)', comprobante)
+	if m_raiz:
+		cierre = '</%s>' % m_raiz.group(1)
+		fin = comprobante.rfind(cierre)
+		if fin >= 0:
+			comprobante = comprobante[:fin + len(cierre)]
+
+	estado = _tag('estado') or 'AUTORIZADO'
+	numero = _tag('numeroAutorizacion') or _dato('numeroautorizacion', 'numeroAutorizacion')
+	if not numero:
+		m_clave = re.search(r'<claveAcceso>(\d{49})</claveAcceso>', comprobante)
+		numero = m_clave.group(1) if m_clave else ''
+
+	fecha = _tag('fechaAutorizacion')
+	if not fecha:
+		fecha_doc = _dato('fechaautorizacion')
+		if fecha_doc:
+			fecha = frappe.utils.get_datetime(fecha_doc).strftime('%Y-%m-%dT%H:%M:%S') + '-05:00'
+		else:
+			fecha = ''
+
+	ambiente = _tag('ambiente')
+	if not ambiente:
+		m_amb = re.search(r'<ambiente>(\d)</ambiente>', comprobante)
+		ambiente = 'PRODUCCIÓN' if (m_amb and m_amb.group(1) == '2') else 'PRUEBAS'
+
+	return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+		'<autorizacion>\n'
+		'  <estado>%s</estado>\n'
+		'  <numeroAutorizacion>%s</numeroAutorizacion>\n'
+		'  <fechaAutorizacion>%s</fechaAutorizacion>\n'
+		'  <ambiente>%s</ambiente>\n'
+		'  <comprobante><![CDATA[%s]]></comprobante>\n'
+		'  <mensajes/>\n'
+		'</autorizacion>\n') % (estado, numero, fecha, ambiente, comprobante)
+
+
+def enviar_email_autorizado(doc_data, typeDocSri, doctype_erpnext):
+	"""Envía el RIDE + XML al cliente una vez que el documento ya quedó
+	marcado como autorizado. Un error de correo no debe revertir la
+	autorización, por eso sólo se registra."""
+	try:
+		frappe.db.commit()
+		add_email_quote(doc_data.name, '', '', '', typeDocSri, doctype_erpnext, "1")
+	except Exception:
+		frappe.log_error(title=f"SRI: no se pudo enviar el correo de {doc_data.name}",
+			message=frappe.get_traceback())
 
 def updateStatusDocument_native(doc, typeDocSri, response_json):
 	if typeDocSri ==  "FAC":

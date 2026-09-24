@@ -26,8 +26,9 @@ def after_insert(doc, event):
     #frappe.msgprint(f"{note.title} has been created.")
     #sendmail(doc, recipients, msg, title, attachments = None)
     
-    if(doc.sri_status == 'AUTORIZADO'):
-    #if(True):
+    #processAuthorization envía el correo por su cuenta después de marcar el
+    #documento como autorizado (si se enviara aquí el RIDE saldría "PENDIENTE")
+    if(doc.sri_status == 'AUTORIZADO' and not doc.flags.get('omitir_email')):
         #print(doc)
 
         add_email_quote(doc.doc_ref, '', '', '', doc.tip_doc, doc.doc_type, "1")

@@ -299,7 +299,7 @@ const Website = {
         if(!item_found) 
             return;
 
-        var contentMessage = item_found.xmldata;
+        var contentMessage = frappe.utils.escape_html(item_found.xmldata || '');
 
         var $div = $(`
             <div id="xmlPreviewDocument" class="modal fade" role="dialog" style="z-index: 3000;">
