@@ -6,29 +6,37 @@ import base64
 from io import BytesIO
 
 def get_barcode_base64(string_code):
+    """Código de barras de la clave de acceso para el RIDE.
+    La ficha técnica del SRI recomienda GS1-128 / Code 128 (compacto para 49 dígitos)."""
+    string_code = str(string_code or "").strip()
+    if not string_code or string_code == "0":
+        return None
 
-    # Generar código de barras Code 39
-    code39 = barcode.get_barcode_class('code39')
-    barcode_instance = code39(string_code, writer=ImageWriter(), add_checksum=False)
+    code128 = barcode.get_barcode_class('code128')
+    barcode_instance = code128(string_code, writer=ImageWriter())
 
     options = {
-        "text_distance": 0, 
         "write_text": False,
-        'background': '#eaeaea' # #eaeaea
-        #'background': 'rgba(0, 0, 0, 0)'
+        "module_width": 0.25,
+        "module_height": 10,
+        "quiet_zone": 2,
+        "background": "white",
+        "foreground": "black",
     }
 
-    # Guardar como imagen en memoria
     buffer = BytesIO()
     barcode_instance.write(buffer, options=options)
-    buffer.seek(0)   
+    buffer.seek(0)
+    return base64.b64encode(buffer.read()).decode('utf-8')
 
-    # Convertir la imagen a base64
-    base64_image = base64.b64encode(buffer.read()).decode('utf-8')
 
-    # Imprimir la cadena base64
-    #print(base64_image)
-    return base64_image
+def clave_para_barcode(doc):
+    """Número de autorización si ya existe; si no, la clave de acceso (son iguales en el esquema offline)."""
+    for campo in ("numeroautorizacion", "numeroAutorizacion"):
+        valor = str(doc.get(campo) or "").strip()
+        if valor and valor != "0":
+            return valor
+    return doc.get("claveAcceso")
 
 def get_barcode_svg(string_code):
     # Generar código de barras Code 39

@@ -1290,3 +1290,60 @@ def limpiar_rastros_proveedor():
 
 	frappe.db.commit()
 	return resultado
+
+
+@frappe.whitelist()
+def sincronizar_plantillas_sri(incluir_email=1):
+	"""Copia a la base los RIDE (Print Format) y, opcionalmente, las plantillas de
+	email SRI desde public/jinja, para que el sistema en marcha quede igual al código.
+	Solo System Manager. Idempotente."""
+	import os
+	frappe.only_for("System Manager")
+	base = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "public", "jinja")
+
+	rides = {
+		"Factura SRI": "sales_invoice_sri_ride.html",
+		"Nota de Crédito SRI": "credit_note_sri_ride.html",
+		"Retención SRI": "withdraw_purchase_sri_ride.html",
+		"Guía de Remisión SRI": "delivery_note_sri_ride.html",
+		"Liquidación de Compra SRI": "purchase_settlement_sri_ride.html",
+	}
+	emails = {
+		"Factura SRI Body": "sales_invoice_sri_email.html",
+		"Nota de Crédito SRI Body": "credit_note_sri_email.html",
+		"Guia Remision Sri Body": "delivery_note_sri_email.html",
+		"Comprobante Retencion Sri Body": "withdraw_purchase_sri_email.html",
+		"Liquidación de Compra Sri Body": "purchase_settlement_sri_email.html",
+	}
+
+	resultado = {"print_format": [], "email_template": [], "no_encontrado": []}
+
+	for nombre, archivo in rides.items():
+		if not frappe.db.exists("Print Format", nombre):
+			resultado["no_encontrado"].append(nombre)
+			continue
+		with open(os.path.join(base, archivo), encoding="utf-8") as f:
+			html = f.read()
+		pf = frappe.get_doc("Print Format", nombre)
+		pf.html = html
+		pf.pdf_generator = "wkhtmltopdf"
+		pf.font_size = 10
+		pf.margin_top = pf.margin_bottom = pf.margin_left = pf.margin_right = 15
+		pf.save(ignore_permissions=True)
+		resultado["print_format"].append(nombre)
+
+	if int(incluir_email or 0):
+		for nombre, archivo in emails.items():
+			if not frappe.db.exists("Email Template", nombre):
+				resultado["no_encontrado"].append(nombre)
+				continue
+			with open(os.path.join(base, archivo), encoding="utf-8") as f:
+				html = f.read()
+			et = frappe.get_doc("Email Template", nombre)
+			et.response_html = html
+			et.use_html = 1
+			et.save(ignore_permissions=True)
+			resultado["email_template"].append(nombre)
+
+	frappe.db.commit()
+	return resultado

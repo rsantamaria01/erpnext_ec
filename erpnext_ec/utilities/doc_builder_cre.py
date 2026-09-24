@@ -11,8 +11,8 @@ def build_doc_cre_with_images(doc_name):
 	doc_response = build_doc_cre(doc_name)
 	if(not doc_response.numeroAutorizacion):
 		doc_response.numeroAutorizacion = "0"	
-	doc_response.numeroautorizacion_img = get_barcode_base64(doc_response.numeroAutorizacion)
-	doc_response.logo_img = get_barcode_base64(doc_response.numeroAutorizacion)
+	doc_response.numeroautorizacion_img = get_barcode_base64(clave_para_barcode(doc_response))
+	doc_response.logo_img = get_barcode_base64(clave_para_barcode(doc_response))
 	#print(doc_response.numeroautorizacion_img)
 	return doc_response
 
@@ -118,9 +118,17 @@ def build_doc_cre(doc_name):
 		tipoEmision = 1
 
 		fechaEmision = doc.fechaEmision
+		puntoEmision_rec = get_full_ptoemi(doc.ptoemi)
+		if not puntoEmision_rec:
+			frappe.throw(_("No se ha definido el punto de emisión (ptoEmi). Configure los datos SRI para emitir el comprobante electrónico."))
+		doc.ptoemi = puntoEmision_rec.record_name
 		puntoEmision = doc.ptoemi
 		secuencial = doc.secuencial
 		ruc = doc.tax_id
+		establecimiento_rec = get_full_establishment(doc.estab)
+		if not establecimiento_rec:
+			frappe.throw(_("No se ha definido el establecimiento (estab). Configure los datos SRI para emitir el comprobante electrónico."))
+		doc.estab = establecimiento_rec.record_name
 		establecimiento = doc.estab
 
 		claveAcceso = GenerarClaveAcceso(tipoDocumento, 

@@ -1,558 +1,135 @@
+{% set b = build_doc_cre_with_images(doc.name) %}
+{% set logo_path = frappe.db.get_value("Company", doc.company, "company_logo") or "" %}
+{% set num = (b.estab or '') ~ "-" ~ (b.ptoemi or '') ~ "-" ~ ('%09d' % ((b.secuencial or doc.secuencial) or 0)|int) %}
+{% set nro_aut = b.numeroAutorizacion or b.numeroautorizacion %}
+{% set autorizado = nro_aut and nro_aut|string != '0' %}
 <style>
-    body {
-        font-family: sans-serif;
-        font-size: 10pt;
-        background-repeat: no-repeat;
-        background-position: center;
-        /*line-height: 0.1em;*/
-    }
-
-    @media print {
-        /* prevent blank page at end */
-        table:last-of-type { page-break-after: auto; }
-        html, body {
-            height: 100%;
-        }
-    }
-    
-    .gray-box {
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        /*height: 1in;*/
-                
-        border-style: none;
-        border-width: 0px;
-        border-color: #f2f2f2;
-
-        font-size: 8pt;        
-        /*margin: 2pt;
-        padding-left: 8px;
-        padding-right: 8px;
-        padding-top: 2px;
-        padding-bottom: 4px;*/        
-        background-color: #eaeaea;
-    }
-    
-    .table-compressed
-    {
-        /*padding: 2px !important;*/
-    }
-    
-    .table-compressed td, .table-compressed th 
-    {
-        padding: 6px !important; 
-    }    
-
-    a {
-        color: blue !important;
-        text-decoration: underline;
-        cursor: auto;
-    }
-
-    #tabdetalle {
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        border-collapse: collapse;
-        font-size: 1.3em;
-    }
-
-        #tabdetalle td, #tabdetalle th {            
-            padding: 8px;
-            font-size: 0.7em;
-        }
-
-        #tabdetalle tr {
-            background-color: #f2f2f2;
-        }
-
-        #tabdetalle tr:hover {
-            background-color: #ddd;
-        }
-
-        #tabdetalle th {
-            font-weight: bold;
-            font-size: 0.7em;
-            padding-top: 3px;
-            padding-bottom: 3px;
-            text-align: left;
-            background-color: #ddd;
-            color: #000;
-        }
-
-    .infoAdicional {
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        border-collapse: collapse;
-        font-size: 1.3em;
-        margin-bottom: 10px;
-    }
-
-    .infoAdicional td, .infoAdicional th {
-        
-        padding: 8px;
-        font-size: 0.7em;
-    }
-
-    .infoAdicional tr {
-        background-color: #f2f2f2;
-    }
-
-    .infoAdicional tr:hover {
-        background-color: #ddd;
-    }
-
-    .infoAdicional th {
-        font-weight: bold;
-        font-size: 0.7em;
-        padding-top: 3px;
-        padding-bottom: 3px;
-        text-align: left;
-        background-color: #ddd;
-        color: #000;
-    }
-
-    .subsection-title {
-        background-color: #eaeaea;
-        font-weight: bold;
-    }
-
-    .summary-title-top {
-        background-color: #f2f2f2;
-        text-align: left;
-        border-left: none;
-        border-right: none;        
-        border-top-width: medium;
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        font-size: 1em;
-        font-weight: bold;
-    }
-
-    .summary-data-top {
-        text-align: right;
-        padding-right: 3px;
-        background-color: #eaeaea;        
-        border-top-width: medium;
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        font-size: 1em;
-        font-weight: bold;
-    }
-
-    .summary-title {
-        background-color: #f2f2f2;
-        text-align: left;
-        border-right: none;
-        /*border-bottom: 0.1pt solid;*/
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        font-size: 0.9em;
-    }
-
-    .summary-data {
-        background-color: #eaeaea;
-        text-align: right;
-        padding-right: 3px;
-        border-right: none;        
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        font-size: 0.9em;
-    }
-
-    .summary-title-bottom {
-        background-color: #f2f2f2;
-        text-align: left;
-        border-right: none;        
-        border-bottom-width: medium;
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        font-size: 1.0em;
-        font-weight: bold;
-    }
-
-    .summary-data-bottom {
-        background-color: #eaeaea;
-        text-align: right;
-        padding-right: 3px;
-        border-right: none;        
-        border-bottom-width: medium;
-        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-        font-size: 1.0em;
-        font-weight: bold;
-    }
-
-    @media print { body { -webkit-print-color-adjust: exact; } }
-    
-    .page-header, .page-header-space {
-        /*height: 15px;*/ /* Max is 230px */
-        margin: 0;
-    }
-
-    .page-header {
-        position: relative;
-        top: 0mm;
-        width: 100%;
-        border-bottom: 1px solid; /* for demo */
-        border-color: #eaeaea;
-        margin-bottom:10px;
-        line-height: 0.7em;
-        font-size: 0.7em;
-    }
-
-    .page-footer, .page-footer-space {
-        height: 20px; /* Max is 230px */
-        margin: 0;
-    }
-
-    .page-footer {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        border-top: 1px solid; /* for demo */
-        border-color: #eaeaea;
-    }
-
-    .page {    
-        font-family: sans-serif;
-        font-size: 10pt;
-        page-break-after: always;
-        margin-top:5px;
-        position: relative;
-        /*min-height: 1000px;*/ /*Estatico*/
-    }
-
-    .page-content {    
-        /*font-family: sans-serif;*/
-        /*font-size: 10pt;    */
-        position: relative;
-        padding:1.em;
-        margin-top: 30px;
-    }
-
-@page {
-    /* this affects the margin in the printer settings */ 
-    /*margin: 20mm 0mm 30mm 0mm;*/
-    /*margin: 0mm 0mm 0mm 0mm */
-}
-
+  .ride { font-family: "DejaVu Sans", Arial, Helvetica, sans-serif; font-size: 10px; color: #1f2328; line-height: 1.35; }
+  .ride table { width: 100%; border-collapse: collapse; border-spacing: 0; }
+  .ride table td, .ride table th { padding: 3px 6px; vertical-align: top; border: 0; }
+  .ride .box { border: 1px solid #c9ced6; }
+  .ride .gris { background: #f3f4f6; }
+  .ride .t { font-size: 8px; color: #57606a; text-transform: uppercase; letter-spacing: .3px; }
+  .ride .emisor-nombre { font-size: 13px; font-weight: bold; color: #0b5394; padding-bottom: 4px; }
+  .ride .doc-tipo { font-size: 14px; font-weight: bold; color: #0b5394; }
+  .ride .num { font-size: 12px; font-weight: bold; }
+  .ride .mono { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: 8.5px; word-wrap: break-word; }
+  .ride .sep { height: 8px; }
+  .ride .det th { background: #0b5394; color: #fff; font-size: 8px; text-transform: uppercase; padding: 4px 6px; text-align: left; }
+  .ride .det td { border-bottom: 1px solid #e3e6ea; }
+  .ride .r, .ride .det th.r { text-align: right; }
+  .ride .c, .ride .det th.c { text-align: center; }
+  .ride .tot td { border-bottom: 1px solid #e3e6ea; }
+  .ride .tot .fin td { background: #0b5394; color: #fff; font-weight: bold; font-size: 11px; border: 0; }
+  .ride .aviso { background: #fff4e5; color: #8a5300; font-weight: bold; padding: 4px 6px; text-align: center; }
+  .ride .sub { font-size: 10px; font-weight: bold; color: #0b5394; padding: 5px 6px; }
 </style>
 
-{% set doc_build = build_doc_cre_with_images(doc.name) %}
-{% set base_url = get_full_url() %}
+<div class="ride">
+{% if b.ambiente|string != '2' or not autorizado %}
+  <div class="aviso">{% if b.ambiente|string != '2' %}AMBIENTE DE PRUEBAS &mdash; SIN VALIDEZ TRIBUTARIA{% else %}DOCUMENTO PENDIENTE DE AUTORIZACI&Oacute;N DEL SRI{% endif %}</div>
+  <div class="sep"></div>
+{% endif %}
 
-<div class="page">    
-    <div class="page-header">
-        <p>Documento electrónico <strong>No.{{doc.estab}}-{{doc.ptoemi}}-{{'%09d' % doc.secuencial}}</strong></p>
-    </div>
-    
-    <div class="page-content">
-        <div class="row section-break gray-box p-2 m-1">
-			<div class="col-xs-6 column-break">
-                <div class="row data-field" style="background-color: #fff;">
-				    <div class="col-xs-12">
-					    {% set logo_path = frappe.db.get_value("Company", doc.company, "company_logo") or "" %}
-                        {% set logo_url = base_url + logo_path %}
-                        <img src="{{ logo_url }}" height="80"/>
-				    </div>
-				    <div class="col-xs-12 value">					    
-				    </div>
-			    </div>               
+<table>
+  <tr>
+    <td style="width:52%; padding:0 8px 0 0;">
+      <table class="box">
+        <tr><td style="padding:8px;">
+          {% if logo_path %}<img src="{{ get_full_url() + logo_path }}" style="max-height:55px; max-width:220px; margin-bottom:6px;"/><br/>{% endif %}
+          <div class="emisor-nombre">{{ b.razonSocial or doc.company }}</div>
+          {% if b.nombreComercial and b.nombreComercial != b.razonSocial %}<div>{{ b.nombreComercial }}</div>{% endif %}
+          <div><b>RUC:</b> {{ b.tax_id }}</div>
+          <div><b>Dir. matriz:</b> {{ b.DireccionMatriz }}</div>
+          {% if b.dirEstablecimiento and b.dirEstablecimiento != b.DireccionMatriz %}<div><b>Dir. establecimiento:</b> {{ b.dirEstablecimiento }}</div>{% endif %}
+          {% if b.contribuyenteEspecial %}<div><b>Contribuyente especial No.:</b> {{ b.contribuyenteEspecial }}</div>{% endif %}
+          <div><b>Obligado a llevar contabilidad:</b> {{ 'SI' if b.obligadoContabilidad else 'NO' }}</div>
+          {% if b.contribuyenteRimpe %}<div><b>CONTRIBUYENTE R&Eacute;GIMEN RIMPE</b></div>{% endif %}
+          {% if b.agenteRetencion %}<div><b>Agente de retenci&oacute;n Res. No.:</b> {{ b.agenteRetencion }}</div>{% endif %}
+          {% if b.granContribuyente %}<div><b>Gran contribuyente</b> {{ b.granContribuyenteResolucion or '' }}</div>{% endif %}
+        </td></tr>
+      </table>
+    </td>
+    <td style="width:48%; padding:0;">
+      <table class="box gris">
+        <tr><td style="padding:8px 8px 2px 8px;"><span class="doc-tipo">COMPROBANTE DE RETENCI&Oacute;N</span></td></tr>
+        <tr><td style="padding:0 8px;"><span class="t">No.</span> <span class="num">{{ num }}</span></td></tr>
+        <tr><td style="padding:6px 8px 0 8px;" class="t">N&uacute;mero de autorizaci&oacute;n</td></tr>
+        <tr><td style="padding:0 8px;" class="mono">{{ nro_aut if autorizado else 'PENDIENTE' }}</td></tr>
+        <tr><td style="padding:6px 8px 0 8px;">
+          <span class="t">Fecha y hora de autorizaci&oacute;n:</span>
+          {{ b.fechaautorizacion if autorizado and b.fechaautorizacion else '&mdash;' }}
+        </td></tr>
+        <tr><td style="padding:2px 8px 0 8px;"><span class="t">Ambiente:</span> {{ 'PRODUCCI&Oacute;N' if b.ambiente|string == '2' else 'PRUEBAS' }} &nbsp; <span class="t">Emisi&oacute;n:</span> NORMAL</td></tr>
+        {% if doc.sri_placa and doc.sri_placa|string != '0' %}<tr><td style="padding:2px 8px 0 8px;"><span class="t">Placa:</span> {{ doc.sri_placa }}</td></tr>{% endif %}
+        <tr><td style="padding:6px 8px 0 8px;" class="t">Clave de acceso</td></tr>
+        <tr><td style="padding:2px 8px 0 8px;" class="c">
+          {% if b.numeroautorizacion_img %}<img src="data:image/png;base64,{{ b.numeroautorizacion_img }}" style="width:100%; height:42px;"/>{% endif %}
+        </td></tr>
+        <tr><td style="padding:0 8px 8px 8px;" class="c mono">{{ b.claveAcceso }}</td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
 
-			    <div class="row data-field">
-				    <div class="col-xs-12">					
-					    <label>Emisor:</label>					
-				    </div>
-				    <div class="col-xs-12 value">
-					    {{ doc.company }}
-				    </div>
-			    </div>		
-			    <div class="row data-field" data-fieldname="fechaautorizacion" data-fieldtype="Datetime">
-                    <div class="col-xs-12">					
-                        <label>Ruc:</label>					
-                    </div>
-                    <div class="col-xs-12 value">
-                        {{ frappe.db.get_value("Company", {'name': doc.company}, "tax_id") or "" }}
-                    </div>
-                </div>		
-			<div class="row data-field" data-fieldname="fechaEmision" data-fieldtype="Datetime">
-				<div class="col-xs-12">					
-					<label>Matriz: </label>					
-				</div>
-				<div class="col-xs-12 value">
-					{{doc_build.DireccionMatriz}}
-				</div>
-			</div>		
-			
-            {% if doc_build.contribuyenteEspecial %}
-                <div class="row  data-field" data-fieldname="sri_estado" data-fieldtype="Int">
-                    <div class="col-xs-12">					
-                        <label>CONTRIBUYENTE ESPECIAL No: </label>					
-                    </div>
-                    <div class="col-xs-12 value">
-                        {{doc_build.contribuyenteEspecial}}	
-                    </div>
-                </div>
-            {% endif %}
-            
-            {% if doc_build.obligadoContabilidad %}
-                <div class="row  data-field" data-fieldname="sri_estado" data-fieldtype="Int">
-                    <div class="col-xs-12">					
-                        <label>OBLIGADO A LLEVAR CONTABILIDAD: SI</label>					
-                    </div>
-                    <div class="col-xs-12 value">                        
-                    </div>
-                </div>
-            {% else %}
-                <div class="row  data-field" data-fieldname="sri_estado" data-fieldtype="Int">
-                    <div class="col-xs-12">					
-                        <label>OBLIGADO A LLEVAR CONTABILIDAD: NO</label>					
-                    </div>
-                    <div class="col-xs-12 value">                        
-                    </div>
-                </div>
-            {% endif %}
-            
-            {% if doc_build.contribuyenteRimpe %}            
-                <div class="row  data-field" data-fieldname="sri_estado" data-fieldtype="Int">
-                    <div class="col-xs-12">					
-                        <label>CONTRIBUYENTE RÉGIMEN RIMPE</label>					
-                    </div>
-                    <div class="col-xs-12 value">                        
-                    </div>
-                </div>
-            {% endif %}
-            
-            {% if doc_build.agenteRetencion %}
-                <div class="row  data-field">
-                    <div class="col-xs-12">					
-                        <label>Agente de Retenci&oacute;n Resoluci&oacute;n No. {{doc_build.agenteRetencion}}</label>
-                    </div>
-                    <div class="col-xs-12 value">                        
-                    </div>
-                </div>
-            {% endif %}
-		</div>
+<div class="sep"></div>
+<table class="box">
+  <tr>
+    <td style="width:62%;"><span class="t">Sujeto retenido:</span> <b>{{ b.razonSocialSujetoRetenido }}</b></td>
+    <td style="width:38%;"><span class="t">RUC / CI:</span> <b>{{ b.identificacionSujetoRetenido }}</b></td>
+  </tr>
+  <tr>
+    <td><span class="t">Direcci&oacute;n:</span> {{ b.direccionSujetoRetenido or '' }}</td>
+    <td><span class="t">Fecha de emisi&oacute;n:</span> {{ (b.fechaEmision).strftime('%d/%m/%Y') if (b.fechaEmision) and (b.fechaEmision).strftime else (b.fechaEmision or '') }}</td>
+  </tr>
+  <tr>
+    <td><span class="t">Email:</span> {{ b.supplier_email_id or '' }}</td>
+    <td><span class="t">Tel&eacute;fono:</span> {{ b.supplier_phone or '' }}</td>
+  </tr>
+  <tr><td colspan="2"><span class="t">Periodo fiscal:</span> {{ b.periodoFiscal or '' }}</td></tr>
+</table>
 
-		<div class="col-xs-6 column-break">            
-            <div class="row data-field">
-                <div class="col-xs-6">                    
-                    <strong>RETENCIÓN:</strong>                    
-                </div>
-                <div class="col-xs-6" style="text-align: right;">
-                    <strong>No.</strong>{{doc.estab}}-{{doc.ptoemi}}-{{'%09d' % doc.secuencial}}
-                </div>
-            </div>                            
-			<div class="row data-field">
-				<div class="col-xs-12">					
-					<label>N&Uacute;MERO DE AUTORIZACI&Oacute;N</label>					
-				</div>
-				<div class="col-xs-12 value">
-					{{doc_build.numeroAutorizacion}}
-				</div>
-			</div>		
-			<div class="row  data-field">
-				<div class="col-xs-12">					
-					<label>Fecha y hora de autorizaci&oacute;n:</label>					
-				</div>
-				<div class="col-xs-12 value">
-					{{doc_build.fechaautorizacion}}
-				</div>
-			</div>
-			<div class="row  data-field">
-				<div class="col-xs-12">					
-					<label>AMBIENTE:</label>					
-				</div>
-				
-                {% if doc_build.ambiente == 2 %}
-                <div class="col-xs-12 value">PRODUCCI&Oacute;N</div>
-                {% else %}
-                <div class="col-xs-12 value">PRUEBAS</div>
-                {% endif %}
-				
-			</div>		
-			<div class="row  data-field">
-				<div class="col-xs-12">					
-					<label>EMISI&Oacute;N:</label>
-				</div>
-				<div class="col-xs-12 value">
-					NORMAL
-				</div>
-			</div>
+<div class="sep"></div>
+<table class="det box">
+  <tr>
+    <th style="width:12%;">Comprobante</th>
+    <th style="width:20%;">N&uacute;mero</th>
+    <th style="width:11%;">Fecha emisi&oacute;n</th>
+    <th style="width:14%;" class="r">Base imponible</th>
+    <th style="width:17%;">C&oacute;digo retenci&oacute;n</th>
+    <th style="width:10%;" class="r">% retenci&oacute;n</th>
+    <th style="width:16%;" class="r">Valor retenido</th>
+  </tr>
+  {% for it in b.impuestos %}
+  <tr>
+    <td>{{ it.codDocSustentoLink or it.codDocSustento or '' }}</td>
+    <td>{{ it.numDocSustento or '' }}</td>
+    <td>{{ it.fechaEmisionDocSustento.strftime('%d/%m/%Y') if it.fechaEmisionDocSustento and it.fechaEmisionDocSustento.strftime else (it.fechaEmisionDocSustento or '') }}</td>
+    <td class="r">{{ '{:,.2f}'.format(it.baseImponible or 0) }}</td>
+    <td>{{ it.codigoRetencionId or it.codigoRetencion or '' }}</td>
+    <td class="r">{{ '{:,.2f}'.format((it.porcentajeRetener or 0)|float) }}</td>
+    <td class="r">{{ '{:,.2f}'.format((it.valorRetenido or 0)|float) }}</td>
+  </tr>
+  {% endfor %}
+</table>
 
-            <div class="row  data-field">
-				<div class="col-xs-12" style="text-align: center;">					
-					<label>CLAVE DE ACCESO</label>
-				</div>
-				<div class="col-xs-12 value" style-x="width:100%;padding: 0px !important;">
-					{% if doc_build.numeroautorizacion_img is not none %}
-                        <img src="data:image/png;base64,{{doc_build.numeroautorizacion_img}}" height="60px" style="width:  95% !important;"/>
-                    {% endif %}
-				</div>
-                <div class="col-xs-12 value" style="text-align: center;">
-					{{doc_build.numeroAutorizacion}}
-				</div>
-			</div>
-		</div>		
-	</div>
-
-        <div class="row section-break gray-box p-2 m-1" data-label="Información Tributaria">
-			<div class="col-xs-6 column-break">
-			    <div class="row  data-field" data-fieldname="sri_response" data-fieldtype="Data">
-				    <div class="col-xs-12">					
-					    <label>Raz&oacute;n Social:</label>					
-				    </div>
-				    <div class="col-xs-12 value">
-					    {{ doc_build.razonSocialSujetoRetenido }} 
-				    </div>
-			    </div>		
-			    <div class="row data-field" data-fieldname="fechaautorizacion" data-fieldtype="Datetime">
-                    <div class="col-xs-12">					
-                        <label>Direcci&oacute;n:</label>					
-                    </div>
-                    <div class="col-xs-12 value">
-                        {{doc_build.direccionSujetoRetenido}}
-                    </div>
-                </div>		
-			<div class="row data-field" data-fieldname="fechaEmision" data-fieldtype="Datetime">
-				<div class="col-xs-12">					
-					<label>Fecha Emisi&oacute;n: </label>					
-				</div>
-				<div class="col-xs-12 value">
-					{{doc_build.fechaEmision}}
-				</div>
-			</div>		
-			<div class="row  data-field" data-fieldname="sri_estado" data-fieldtype="Int">
-				<div class="col-xs-12">					
-					<label>Ejercicio Fiscal: </label>					
-				</div>
-				<div class="col-xs-12 value">
-					{{doc_build.periodoFiscal}}	
-				</div>
-			</div>
-		</div>
-		<div class="col-xs-6 column-break">		
-			<div class="row  data-field" data-fieldname="estab" data-fieldtype="Link">
-				<div class="col-xs-12">					
-					<label>RUC/CI:</label>					
-				</div>
-				<div class="col-xs-12 value">
-					{{doc_build.identificacionSujetoRetenido}}
-				</div>
-			</div>		
-			<div class="row  data-field" data-fieldname="ptoemi" data-fieldtype="Link">
-				<div class="col-xs-12">					
-					<label>Tel&eacute;fono:</label>					
-				</div>
-				<div class="col-xs-12 value">
-					+593 {{doc_build.supplier_phone}}
-				</div>
-			</div>
-			<div class="row  data-field" data-fieldname="ambiente" data-fieldtype="Int">
-				<div class="col-xs-12">					
-					<label>Email:</label>					
-				</div>
-				<div class="col-xs-12 value">
-					{{doc_build.supplier_email_id}}
-				</div>
-			</div>		
-			<div class="row  data-field" data-fieldname="tipoEmision" data-fieldtype="Int">
-				<div class="col-xs-12">					
-					<label>&nbsp;</label>
-				</div>
-				<div class="col-xs-12 value">
-					&nbsp;
-				</div>
-			</div>		
-		</div>		
-	</div>
-                      
-
-        <div data-fieldname="items" data-fieldtype="Table">
-            <table class="table table-bordered table-condensed">
-                <thead>
-                    <tr>
-                        <th style="width: 80px;" class="text-center" data-fieldname="items" data-fieldtype="Table">Comprobante</th>
-                        <th style="width: 150px;" class="text-center" data-fieldname="items" data-fieldtype="Table">Número</th>
-                        <th style="width: 80px;" class="text-center" data-fieldname="items" data-fieldtype="Table">Fecha Emisión</th>
-                        <th style="width: 100px;" class="text-center" data-fieldname="items" data-fieldtype="Table">Base Imponible para la retención</th>
-                        <th style="width: 80px;" class="text-right" data-fieldname="items" data-fieldtype="Table">Impuesto</th>
-                        <th style="width: 80px;" class="text-center" data-fieldname="items" data-fieldtype="Table">Código</th>
-                        <th style="width: 80px;" class="text-right" data-fieldname="items" data-fieldtype="Table">Porcentaje Retención</th>
-                        <th style="width: 80px;" class="text-center" data-fieldname="items" data-fieldtype="Table">Valor Retenido</th>                        
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in doc_build.impuestos %}
-                    <tr>
-                        <td class="text-center">{{ item.codDocSustentoLink }}</td>
-                        <td class="text-center" data-fieldname="items" data-fieldtype="Table">                            
-                            <div class="value">{{ item.numDocSustento }}</div>
-                        </td>                           
-                        <td class="text-center" data-fieldname="items" data-fieldtype="Table">                            
-                            <div class="value"><div class="ql-snow">{{ item.fechaEmisionDocSustento.strftime('%d/%m/%Y') }}</div></div>
-                        </td>
-                        <td class="text-right" data-fieldname="items" data-fieldtype="Table">
-                            <div class="value">{{ frappe.format(item.baseImponible,'Currency') }}</div>
-                        </td>                        
-                        <td class="text-center" data-fieldname="items" data-fieldtype="Table">                            
-                            <div class="value">RENTA/IVA</div>
-                        </td>
-                        <td class="text-center" data-fieldname="items" data-fieldtype="Table">                            
-                            <div class="value">{{ item.codigoRetencionId }}</div>
-                        </td>
-                        <td class="text-right" data-fieldname="items" data-fieldtype="Table">                            
-                            <div class="value">{{ item.porcentajeRetener }}</div>
-                        </td>
-                        <td class="text-right" data-fieldname="items" data-fieldtype="Table">                            
-                            <div class="value">{{ frappe.format(item.valorRetenido,'Currency') }}</div>
-                        </td>
-                        
-                        <td class="text-center hidden" data-fieldname="items" data-fieldtype="Table">                            
-                            <div class="value">
-                                <svg viewBox="0 0 16 16" fill="transparent" stroke="#1F272E" stroke-width="2" xmlns="http://www.w3.org/2000/svg" id="icon-tick" style="width: 12px; height: 12px; margin-top: 5px;">
-                                    <path d="M2 9.66667L5.33333 13L14 3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
-                            </div>
-                        </td>                        
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="row section-break" data-label="">
-			<div class="col-xs-4 column-break">
-			    <div class="row  data-field" data-fieldname="total_qty" data-fieldtype="Float">
-				    <div class="col-xs-12">					
-					    
-				    </div>                    
-                </div>
-            </div>		
-            <div class="col-xs-4 column-break"></div>		
-			<div class="col-xs-4 column-break">			
-                <div class="row">	
-                    <div class="col-xs-5">
-                        <label>Total</label>
-                    </div>
-                    <div class="col-xs-7 text-right">{{frappe.format(doc_build.total_valorRetenido,'Currency')}}</div>
-                </div>			
-            </div>		
-        </div>
-
-
-        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%">
-            <tbody>
-                <tr>
-                    <td style="width:50%">                                                
-                        <table class="infoAdicional" style="width:90%">
-                            <tbody>
-                                <tr>
-                                    <td class="subsection-title" colspan="2">Informaci&oacute;n Adicional</td>
-                                </tr>                        
-                                {% for jsonItem in doc_build.infoAdicional %}
-                                    <tr>
-                                        <td style="text-align: left;">{{jsonItem.nombre}}</td>
-                                        <td style="text-align: left;">{{jsonItem.valor}}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>                        
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>  
- </div>
-    
-
+<div class="sep"></div>
+<table>
+  <tr>
+    <td style="width:56%; padding:0 8px 0 0;">
+      <table class="box">
+        <tr class="gris"><td colspan="2"><b>Informaci&oacute;n adicional</b></td></tr>
+        {% for ia in b.infoAdicional %}{% if ia.valor %}
+        <tr><td style="width:28%;" class="t">{{ ia.nombre }}</td><td>{{ ia.valor }}</td></tr>
+        {% endif %}{% endfor %}
+        {% if b.rucProveedor %}<tr><td class="t">RUC proveedor</td><td>{{ b.rucProveedor }}</td></tr>{% endif %}
+      </table>
+    </td>
+    <td style="width:44%; padding:0;">
+      <table class="box tot">
+        <tr class="fin"><td>TOTAL RETENIDO (USD)</td><td class="r">{{ '{:,.2f}'.format((b.total_valorRetenido or 0)|float) }}</td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</div>
