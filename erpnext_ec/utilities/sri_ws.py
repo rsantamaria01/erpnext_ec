@@ -1257,3 +1257,36 @@ def updateStatusDocument_native(doc, typeDocSri, response_json):
 				fechaAutorizacion = fecha_con_zona.replace(tzinfo=None)
 
 				document_object.db_set('fechaautorizacion', fechaAutorizacion)
+
+
+@frappe.whitelist()
+def limpiar_rastros_proveedor():
+	"""Quita de los Print Format y Email Template guardados en la base el pie
+	'Powered by beebtech.net' que traían las plantillas originales de erpnext_ec.
+	Las fuentes en public/jinja ya están limpias; esto sincroniza la base.
+	Solo System Manager. Idempotente."""
+	import re
+	frappe.only_for("System Manager")
+
+	patron = re.compile(
+		r'\s*<div class="page-footer" style="display:none;">\s*'
+		r'<div style="margin-top:10px">Powered by <a href="https://beebtech\.net/"[^>]*>https://beebtech\.net</a></div>\s*'
+		r'</div>', re.I)
+
+	resultado = {"print_format": [], "email_template": [], "pendientes": []}
+
+	for pf in frappe.get_all("Print Format", filters={"html": ["like", "%beebtech%"]}, pluck="name"):
+		doc = frappe.get_doc("Print Format", pf)
+		nuevo = patron.sub("", doc.html or "")
+		if nuevo != doc.html:
+			doc.html = nuevo
+			doc.save(ignore_permissions=True)
+			resultado["print_format"].append(pf)
+		if "beebtech" in (doc.html or "").lower():
+			resultado["pendientes"].append(pf)
+
+	for et in frappe.get_all("Email Template", filters={"response_html": ["like", "%beebtech%"]}, pluck="name"):
+		resultado["pendientes"].append(et)
+
+	frappe.db.commit()
+	return resultado
