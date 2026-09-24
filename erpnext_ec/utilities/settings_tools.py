@@ -39,8 +39,8 @@ def load_print_format_sri_online():
 	pass
 
 @frappe.whitelist()
-def load_sri_estab_build():
-	sri_estab_import_tools.execute()
+def load_sri_estab_build(company=None):
+	sri_estab_import_tools.execute(company)
 	print('Terminada la importación de establecimientos para el SRI')	
 	pass
 
