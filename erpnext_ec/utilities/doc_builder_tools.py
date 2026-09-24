@@ -470,7 +470,8 @@ def get_full_items(doc_name, doc_parent):
 
     items = frappe.get_all('Sales Invoice Item',
                            filters={'parent': doc_name},
-                           fields=['*']
+                           fields=['*'],
+                           order_by='idx asc'
                         #    fields=['item_code', 'item_name', 'rate', 'qty', 'amount']
                                        )
     
@@ -516,7 +517,8 @@ def get_full_items_purchase_receipt(doc_name, doc_parent):
 
     items = frappe.get_all('Purchase Receipt Item',
                            filters={'parent': doc_name},
-                           fields=['*']
+                           fields=['*'],
+                           order_by='idx asc'
                             )
     
     total_items_discount = 0
@@ -538,7 +540,8 @@ def get_full_items_purchase_invoice(doc_name, doc_parent):
 
     items = frappe.get_all('Purchase Invoice Item',
                            filters={'parent': doc_name},
-                           fields=['*']
+                           fields=['*'],
+                           order_by='idx asc'
                             )
     
     total_items_discount = 0

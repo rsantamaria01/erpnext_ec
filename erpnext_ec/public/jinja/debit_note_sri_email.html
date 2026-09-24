@@ -1,285 +1,67 @@
-<style type="text/css">	
-	#outlook a {padding:0;} 
-	body{width:100% !important; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; margin:0; padding:0;} 	
-	.ExternalClass {width:100%;} 
-	.ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height: 100%;}
-	
-	#backgroundTable {margin:0; padding:0; width:100% !important; line-height: 100% !important;}
-	
-	img {outline:none; text-decoration:none; -ms-interpolation-mode: bicubic;} 
-	a img {border:none;} 
-	.image_fix {display:block;}
-	
-	p {margin: 0 0 1em 0;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 14px;
-	line-height: 21px;
-	color: #39393a;
-	}
-	
-	h1, h2, h3, h4, h5, h6 {color: #39393a;
-	font-family: Arial, Helvetica, sans-serif;
-	}
-	h1 {
-	font-size: 32px;
-	}
-	h2 {
-	line-height: 24px;
-	font-size: 18px;
-	margin-bottom: 0;
-	}
-	h3 {
-	font-size: 16px;
-	margin-bottom: 8px;
-	margin-top: 0;
-	}
-	img { border: none !important; }
-	h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {color: blue !important;}
-	h1 a:active, h2 a:active,  h3 a:active, h4 a:active, h5 a:active, h6 a:active {
-	color: red !important; 
-	}
-	h1 a:visited, h2 a:visited,  h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited {
-	color: purple !important; 
-	}
-	
-	table td {border-collapse: collapse;}
-	
-	table { border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; }
-	
-	a {color: #169acd; text-decoration: none;}
-	a:hover {
-	text-decoration: underline;
-	}
-	
-	#footer span.yshortcuts, #footer .yshortcuts span { 
-		color: #333333;font-size:11px;
-	}
-	
-	.mobile_link a[href^="tel"], .mobile_link a[href^="sms"] {
-		text-decoration: default;
-		color: orange !important;
-		pointer-events: auto;
-		cursor: default;
-		}	
-	
-	.mobile_link a[href^="tel"], .mobile_link a[href^="sms"] {
-		text-decoration: default;
-		color: orange !important;
-		pointer-events: auto;
-		cursor: default;
-		}
-		
-</style>
-<html>
-<body>
-<center>
-<table cellpadding="0" cellspacing="0" bgcolor="#ffffff" width="600">
-	<tbody>
-		<tr>
-			<td class="" bgcolor="#ffffff">
-			<center>
-			<table cellpadding="5" cellspacing="0" border="0" width="602">
-				<tbody>
-					<tr>
-						<td valign="middle" height="25" width="50%" align="left" style="font-size:12px;font-family: Arial, Helvetica, sans-serif;" class="">
-						<span style="color:#7e7e7e;font-size:12px;">
-							{{doc.company}}
-						</span>
-						</td>
-						<td valign="middle" height="25" width="50%" align="right" style="font-size:12px;font-family: Arial, Helvetica, sans-serif; color: #7e7e7e;" class="">
-						<a href="http://clientes.tusitioweb.com">
-						<span class="yshortcuts" style="color:#7e7e7e;font-size:12px;">Facturaci&oacute;n</span>
-						</a>
-						</td>
-					</tr>
-				</tbody>
-			</table>			        
-			</center>     
-			</td>
-		</tr>
-		<tr>
-			<td class="">
-			<center>
-			<table width="600">
-				<tbody>
-					<tr>
-						<td class="" align="left">
-							<table bgcolor="#fff">
-								<tbody>
-									<tr>
-										<td>
-											<a href="#" alt="" target="_blank">
-												<!--<img src="https://kedeconsulting.ec/wp-content/uploads/2020/08/logo_kede.png" width="200px">-->
-											</a>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</td>
-						<td class="" align="right">
-							<table bgcolor="#000000">
-								<tbody>
-									<tr>
-										<td>
-											<a href="https://beebtech.net/" alt="">
-												
-											</a>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td class="" align="left">Estimad@: </td>						
-					</tr>
-					<tr>
-						<td class="" align="center" cellpadding="2" colspan="2"><strong>{{doc.customer}}</strong></td>
-					</tr>
-				</tbody>
-			</table>
-			</center>
-			</td>
-		</tr>
-		<tr>
-			<td class="" bgcolor="#ffffff"><center>
-			<font face="arial">
-			<table cellpadding="6" cellspacing="0" width="600">
-				<tbody>
-				  <tr>
-					<td width="180px"><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"><strong>Nota de D&eacute;bito:</strong></span></td>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;">{{doc.estab}}-{{doc.ptoemi}}-{{'%09d' % doc.secuencial}}</span></td>  
-				  </tr>
-				  <tr>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"><strong>No. de cuenta:</strong></span></td>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"><!-- NO USADO --></span></td>
-				  </tr>
-				  <tr>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"><strong>Fecha de emisi&oacute;n:</strong></span></td>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;">{{doc.posting_date}}</span></td>
-				  </tr>
-				  <tr>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"><strong>Autorizaci&oacute;n:</strong></span></td>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;">{{doc.numeroautorizacion}}</span></td>
-				  </tr>
-				  <tr>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"><strong>Valor a pagar:</strong></span></td>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;">{{doc.net_total}}</span></td>
-				  </tr>
-				  <tr>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"><strong>Fecha max. de pago:</strong></span></td>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"><!-- NO USADO --></span></td>
-				  </tr>
-				  <tr>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"></span></td>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"></span></td>
-				  </tr>				  
-				  <tr>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"></span></td>
-					<td><span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;"></span></td>
-				  </tr>				  
-				</tbody>
-			</table>
-			<table cellpadding="6" cellspacing="0" width="600" bgcolor="#eeeeee">
-				<tbody>
-					<tr>
-						<td colspan="2" align="center">
-							<table bgcolor="#fffffff">
-								<tbody>
-									<tr>
-										<td>
-											<a href="https://play.google.com/store/apps/details?id=tuaplicacion" alt="">
-												<img src="http://lh3.googleusercontent.com/e7sBWxXp5eL4a_fpmYFlfkVN7IWs7CJ7OrYWRg5Jqt43xDuZpjxPb7Hj9ZKjnJhk_8hYUIzt1s8_EduvtjIcZCt-wUR9aWGXeeeO528">
-											</a>
-										</td>
-									</tr>
-								</tbody>
-							</table>							
-						</td>
-					</tr>
-					<tr>
-						<td colspan="2" align="center">
-							<a href="https://play.google.com/store/apps/details?id=tuaplicacion">
-								Descarga la app y ver&iacute;fica tus pagos
-							</a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			</font>
-			</center>
-			</td>
-		</tr>
-		<tr>
-			<td class="" valign="middle" align="center">
-			<a href="#"/>
-		</td>
-		</tr>
-	</tbody>
+<div style="background:#f4f5f7;padding:24px 0;font-family:Arial,Helvetica,sans-serif;color:#222;">
+<table role="presentation" cellpadding="0" cellspacing="0" width="600" align="center" style="background:#ffffff;border:1px solid #e3e5e8;">
+  <tr>
+    <td style="padding:20px 28px;border-bottom:3px solid #0b5394;">
+      <div style="font-size:18px;font-weight:bold;color:#0b5394;">Sano Medical Supply</div>
+      <div style="font-size:12px;color:#666;">{{ doc.company }} &middot; RUC {{ doc.tax_id }}</div>
+    </td>
+  </tr>
+  {% if doc.ambiente|string != '2' %}
+  <tr>
+    <td style="padding:8px 28px;background:#fff4e5;color:#8a5300;font-size:12px;font-weight:bold;">
+      AMBIENTE DE PRUEBAS &mdash; este comprobante no tiene validez tributaria.
+    </td>
+  </tr>
+  {% endif %}
+  <tr>
+    <td style="padding:24px 28px 8px 28px;font-size:14px;line-height:21px;">
+      Estimados <strong>{{ doc.customer_name or doc.supplier_name or doc.razonSocialComprador or doc.razonSocialSujetoRetenido or '' }}</strong>:<br><br>
+      Adjuntamos su nota de d&eacute;bito electr&oacute;nica autorizada por el SRI. En este correo encontrar&aacute; el RIDE en PDF y el archivo XML del comprobante.
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:8px 28px 16px 28px;">
+      <table role="presentation" cellpadding="7" cellspacing="0" width="100%" style="font-size:14px;border:1px solid #e3e5e8;">
+        <tr style="background:#f7f8fa;">
+          <td width="42%" style="color:#555;">Nota de débito No.</td>
+          <td><strong>{{ doc.estab }}-{{ doc.ptoemi }}-{{ '%09d' % doc.secuencial }}</strong></td>
+        </tr>
+        <tr>
+          <td style="color:#555;">Fecha de emisi&oacute;n</td>
+          <td>{{ doc.posting_date.strftime('%d/%m/%Y') if doc.posting_date and doc.posting_date.strftime else (doc.posting_date or '') }}</td>
+        </tr>
+        {% if doc.grand_total %}
+        <tr style="background:#f7f8fa;">
+          <td style="color:#555;">Valor total</td>
+          <td><strong>USD {{ '{:,.2f}'.format(doc.grand_total) }}</strong></td>
+        </tr>
+        {% endif %}
+        {% if doc.due_date %}
+        <tr>
+          <td style="color:#555;">Fecha de vencimiento</td>
+          <td>{{ doc.due_date.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% endif %}
+        <tr style="background:#f7f8fa;">
+          <td style="color:#555;">Clave de acceso / Autorizaci&oacute;n</td>
+          <td style="font-family:Consolas,monospace;font-size:12px;word-break:break-all;">{{ doc.numeroautorizacion if doc.numeroautorizacion and doc.numeroautorizacion|string != '0' else doc.claveAcceso }}</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 28px 24px 28px;font-size:13px;line-height:20px;color:#444;">
+      Puede verificar la validez de este comprobante en <a href="https://srienlinea.sri.gob.ec" style="color:#0b5394;">SRI en L&iacute;nea</a> con la clave de acceso.<br><br>
+      Para cualquier consulta sobre este comprobante, responda a este correo o escr&iacute;banos a
+      <a href="mailto:facturacion@sanomedicalsupply.com" style="color:#0b5394;">facturacion@sanomedicalsupply.com</a>.
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:14px 28px;background:#f7f8fa;border-top:1px solid #e3e5e8;font-size:11px;line-height:17px;color:#777;">
+      {{ doc.company }}<br>
+      {{ doc.DireccionMatriz }} &middot; Guayaquil, Ecuador<br>
+      Tel. 096 988 3868 &middot; facturacion@sanomedicalsupply.com
+    </td>
+  </tr>
 </table>
-</center>
-<center>
-<table cellpadding="10" cellspacing="0" width="600" bgcolor="#d60000" >
-	<tbody>
-		<tr>
-			<td class="">
-			<center>
-			<table cellpadding="0" cellspacing="0" width="560" >
-				<tbody>
-					<tr>
-						<td class="" >
-						<center>
-						<table width="540">
-							<tbody>
-								<tr>
-									<td class="" style="color:#fff;">
-										<!--<center>
-										<font face="Arial">
-											<span style="color:#fff;font-size:15px;">
-												Nuestro sitio web,
-												<a href="https://kedeconsulting.ec/">
-													<font color="#fff"><span style="color:#fff;font-size:12px;"><strong>https://kedeconsulting.ec/</strong></span></font>
-												</a>, visitenos.
-											</span>
-										</font>
-										</center>-->
-										<center>
-											<font face="arial" color="#fff" size="2">
-												<p class="yshortcuts">
-													<span style="color:#fff;font-size:15px;">
-														{{doc.DireccionMatriz}}
-													</span>
-												</p>
-												<span style="color:#fff;font-size:11px;">
-													Si desea contactarnos o tiene inquietudes sobre este mensaje, no responda al email remitente sino a:
-												</span>
-												<br/>
-												<span style="color:#fff;font-size:12px;">
-													<a href="mailto:info@beebtech.net">
-														<font color="#fff"><span style="color:#fff;font-size:15px;"><strong>info@beebtech.net</strong></span></font>
-													</a><br>
-												</span>
-											</font>
-										</center>        
-									</td>         
-								</tr>								               
-							</tbody>
-						</table>
-						</center>
-						</td>
-					</tr>
-					<tr>
-					</tr>
-				</tbody>
-			</table>
-			</center>
-			</td>
-		</tr>
-	</tbody>
-</table>
-</center>
-<div>
-<span style="color:#000;font-size:14px;font-family: Arial, Helvetica, sans-serif;display:none;">(DEBUG-DATA)</span>
 </div>
-</body>
-</html>

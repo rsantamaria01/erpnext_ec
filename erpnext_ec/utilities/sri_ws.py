@@ -145,7 +145,7 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 			email_subject = f'Factura Electrónica {doc_data.estab}-{doc_data.ptoemi}-{doc_data.secuencial:09d}'
 	elif typeDocSri == "LIQ":
 			doc_data = build_doc_liq(doc_name)
-			template_name = 'Liquiración Compra Sri Body'
+			template_name = 'Liquidación de Compra Sri Body'
 			print_format_name = 'Liquidación de Compra SRI'
 			email_subject = f'Liquidación de Compra {doc_data.estab}-{doc_data.ptoemi}-{doc_data.secuencial:09d}'
 	if typeDocSri == "NCR":

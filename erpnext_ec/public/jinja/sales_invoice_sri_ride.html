@@ -234,7 +234,7 @@
 
 <div class="page">    
     <div class="page-header">
-        <p>Documento electrónico <strong>No.{{doc.estab}}-{{doc.ptoemi}}-{{'%09d' % doc.secuencial}}</strong></p>
+        <p>Documento electrónico <strong>No.{{doc_build.estab}}-{{doc_build.ptoemi}}-{{'%09d' % doc.secuencial}}</strong></p>
     </div>
     
     <div class="page-content">
@@ -250,7 +250,7 @@
                                             <td>
                                                 {% set logo_path = frappe.db.get_value("Company", doc.company, "company_logo") or "" %}
                                                 {% set logo_url = base_url + logo_path %}
-                                                <img src="{{ logo_url }}" height="80"/>
+                                                {% if logo_path %}<img src="{{ logo_url }}" height="80"/>{% endif %}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -318,7 +318,7 @@
                                 <table style="font-size: 8pt;width:100%" padding="0" cellspacing="0">
                                     <tr>
                                         <td><strong>FACTURA:</strong></td>
-                                        <td valign="top" align="right"><strong>No.</strong>{{doc.estab}}-{{doc.ptoemi}}-{{'%09d' % doc.secuencial}}</td>
+                                        <td valign="top" align="right"><strong>No.</strong>{{doc_build.estab}}-{{doc_build.ptoemi}}-{{'%09d' % doc.secuencial}}</td>
                                     </tr>                                    
                                 </table>
                             </td>
@@ -352,7 +352,7 @@
                             </td>
                         </tr>
                         <td style="font-size:9px" colspan="2"><strong>EMISI&Oacute;N:</strong>&nbsp;&nbsp;&nbsp;NORMAL</td>
-                        {% if doc.sri_placa %}
+                        {% if doc.sri_placa and doc.sri_placa|string != '0' %}
                         <tr>
                             <td style="font-size:9px" colspan="2"><strong>PLACA:</strong>&nbsp;&nbsp;&nbsp;{{ doc.sri_placa }}</td>
                         </tr>
@@ -369,7 +369,7 @@
                         </tr>
                         <tr>
                             <td align="center" style="font-size: .7em;font-weight: bold;font-family:helvetica;padding: 0px !important;">
-                                {{doc_build.numeroautorizacion}}
+                                {{doc_build.claveAcceso}}
                             </td>
                         </tr>
                     </table>
@@ -400,7 +400,7 @@
                         <label>Fec. Emi.:</label>
                     </div>
                     <div class="col-xs-12 value">
-                        {{ doc_build.posting_date }}
+                        {{ doc_build.posting_date.strftime('%d/%m/%Y') }}
                     </div>
                 </div>
             </div>
@@ -418,7 +418,7 @@
                         <label>Tel&eacute;fono:</label>
                     </div>
                     <div class="col-xs-12 value">
-                        +593 {{ doc_build.customer_phone }}
+                        {{ doc_build.customer_phone }}
                     </div>
                 </div>
                 <div class="row data-field" data-fieldname="customer_email_id" data-fieldtype="Data">
@@ -541,7 +541,7 @@
                                 </tr>
                                 <tr>
                                     <td class="summary-title">TOTAL DESCUENTO</td>
-                                <td class="summary-data">{{doc.get_formatted('TotalDescuento')}}</td>
+                                <td class="summary-data">{{frappe.format(doc_build.totalDescuento or 0,'Currency')}}</td>
                                 </tr>
                             
                                 {% for tax_item in doc_build.taxes %}
@@ -562,9 +562,5 @@
             </tbody>
         </table>
     </div>  
-
-    <div class="page-footer" style="display:none;">
-        <div style="margin-top:10px">Powered by <a href="https://beebtech.net/" target="_blank">https://beebtech.net</a></div>
-    </div>
  </div>
     
