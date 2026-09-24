@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "format:{####}",
+ "autoname": "format:EXP-{YYYY}-{#####}",
  "creation": "2023-12-21 01:27:30.810619",
  "doctype": "DocType",
  "document_type": "Document", 
@@ -14,27 +14,39 @@
   {
    "allow_in_quick_entry": 1,
    "fieldname": "id",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "in_list_view": 1,
    "in_preview": 1,
-   "label": "Id",
-   "translatable": 0,
-   "unique": 1
+   "label": "Id"   
   },
   {
     "fieldname": "description",
-    "fieldtype": "Data",
+    "fieldtype": "Small Text",
     "in_list_view": 1,
     "in_preview": 1,
     "label": "Description"
+  },
+  {
+    "fieldname": "service_url_recept",
+    "fieldtype": "Small Text",
+    "in_list_view": 1,
+    "in_preview": 1,
+    "label": "Service Url Recept"
+  },
+  {
+    "fieldname": "service_url_authorize",
+    "fieldtype": "Small Text",
+    "in_list_view": 1,
+    "in_preview": 1,
+    "label": "Service Url Authorize"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
  "modified": "2023-12-21 03:17:38.359596",
  "modified_by": "Administrator",
- "module": "Erpnext Ec",
- "name": "Sri External Establishment",
+ "module": "Erpnext Sri",
+ "name": "Sri Environment",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
@@ -49,13 +61,22 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "write": 1
   }
  ],
- "title": "id",
- "title_field": "id",
- "search_fields": "id, description",
- "sort_field": "id",
- "sort_order": "ASC",
+ "sort_field": "modified",
+ "sort_order": "DESC",
  "states": [],
  "track_changes": 1
 }
