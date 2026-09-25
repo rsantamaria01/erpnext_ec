@@ -1,19 +1,12 @@
 var doctype_customized = "Sales Invoice";
 
 frappe.ui.form.on(doctype_customized, {
+    setup(frm)
+    {
+        SetSriPuntoQueries(frm);
+    },
 	refresh(frm)
     {
-        if (frm.doc.status == 'Draft')
-        {
-            //Fields for custom settings
-            frm.set_query('ptoemi', function() {
-                return {
-                    filters: {
-                        //'sri_establishment_lnk': frm.doc.estab
-                    }
-                };
-            });
-        }
 
         if (frm.doc.status == 'Cancelled' || frm.doc.status == 'Draft')
         {
@@ -24,9 +17,8 @@ frappe.ui.form.on(doctype_customized, {
         //console.log(frm);
         //console.log(frm.doctype_customized);
     },
-    //estab: function(frm)
-	//{
-        //frm.set_value('ptoemi',  '');
-        //frm.refresh_field('ptoemi');
-	//},
+    estab: function(frm)
+    {
+        ClearSriPuntoIfMismatch(frm);
+    },
 })

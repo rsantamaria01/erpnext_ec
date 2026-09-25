@@ -63,7 +63,7 @@ def build_doc_fac(doc_name):
 		doc.obligadoContabilidad = company_full['obligadoContabilidad']
 		doc.agenteRetencion = company_full['agenteRetencion']
 		doc.contribuyenteEspecial = company_full['contribuyenteEspecial']
-		doc.ambiente = company_full['ambiente']
+		set_ambiente_sri(doc)  # ambiente y correo de pruebas según el punto de emisión
 
 		# Ficha Técnica SRI 2.34 (julio 2026) - Anexos 24 y 26
 		doc.granContribuyente = company_full['granContribuyente']

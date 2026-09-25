@@ -215,14 +215,13 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 		print('Se usará email de documento')
 		recipients = doc_data.customer_email_id
 
-	# Dummy Email Send: en pruebas, todo correo va al destino de prueba, nunca al cliente
-	company_object = frappe.get_last_doc('Company', filters = { 'name': doc_data.company })
-	if company_object.regional_settings_ec:
-		rs = frappe.get_cached_doc('Regional Settings Ec', company_object.regional_settings_ec)
-		if rs.dummy_email_send:
-			if not rs.dummy_email_target:
-				frappe.throw(_("Dummy Email Send está activo pero no hay correo destino de prueba."))
-			recipients = rs.dummy_email_target
+	# Ambiente de pruebas (DES): el correo va siempre al "Test Dev Environment Email"
+	# del punto de emisión, nunca al cliente. En producción (PRO) va al cliente.
+	if str(doc_data.get('ambiente')) != '2':
+		if not doc_data.get('test_dev_email'):
+			frappe.throw(_("El documento {0} es del ambiente de pruebas y su punto de emisión no tiene "
+				"'Test Dev Environment Email'. No se envía al cliente.").format(doc_data.name))
+		recipients = doc_data.test_dev_email
 
 	print("recipients final:")
 	print(recipients)

@@ -1053,3 +1053,30 @@ const Website = {
 }
 
 document.Website = Website;
+// Establecimiento y punto de emisión: solo registros activos, del establecimiento
+// y la compañía del documento. El punto de emisión define el ambiente SRI (DES/PRO).
+function SetSriPuntoQueries(frm)
+{
+    frm.set_query('estab', function() {
+        var filters = { 'disabled': 0 };
+        if (frm.doc.company) filters['company_link'] = frm.doc.company;
+        return { filters: filters };
+    });
+
+    frm.set_query('ptoemi', function() {
+        var filters = { 'disabled': 0 };
+        if (frm.doc.estab) filters['sri_establishment_lnk'] = frm.doc.estab;
+        return { filters: filters };
+    });
+}
+
+// Al cambiar el establecimiento se limpia un punto de emisión que ya no le pertenece
+function ClearSriPuntoIfMismatch(frm)
+{
+    if (!frm.doc.ptoemi || !frm.doc.estab) return;
+    frappe.db.get_value('Sri Ptoemi', frm.doc.ptoemi, 'sri_establishment_lnk').then(function(r) {
+        if (r && r.message && r.message.sri_establishment_lnk !== frm.doc.estab) {
+            frm.set_value('ptoemi', '');
+        }
+    });
+}

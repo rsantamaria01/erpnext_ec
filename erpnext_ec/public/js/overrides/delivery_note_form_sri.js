@@ -1,6 +1,14 @@
 var doctype_customized = "Delivery Note";
 
 frappe.ui.form.on(doctype_customized, {
+    setup(frm)
+    {
+        SetSriPuntoQueries(frm);
+    },
+    estab: function(frm)
+    {
+        ClearSriPuntoIfMismatch(frm);
+    },
 	refresh(frm)
     {
         if (cur_frm.doc.docstatus == 1 && frappe.model.can_create("Delivery Trip")) 

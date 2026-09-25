@@ -9,3 +9,4 @@ erpnext_ec.patches.v16_0.sri_2026_fields
 erpnext_ec.patches.v16_0.create_erpnext_ec_sidebar
 erpnext_ec.patches.v16_0.rebuild_sri_sidebar
 erpnext_ec.patches.v16_0.rename_sri_desktop_icon
+erpnext_ec.patches.v16_0.sri_ambiente_por_punto

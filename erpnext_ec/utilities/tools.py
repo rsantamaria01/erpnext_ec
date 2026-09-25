@@ -32,7 +32,25 @@ def set_cookie(cookie_name, cookie_value):
 #Esta función servirá para evaluar la configuración actual del sistem
 # y determinar si es que esta apta para empezar a realizar documentos
 # electrónicos del SRI
-@frappe.whitelist(allow_guest=True)
+def get_puntos_emision_activos(company):
+    """Puntos de emisión activos de la compañía, con su código estab-pto y ambiente."""
+    establecimientos = frappe.get_all('Sri Establishment',
+        filters={'company_link': company, 'disabled': 0}, fields=['name', 'record_name'])
+    puntos = []
+    for est in establecimientos:
+        for pto in frappe.get_all('Sri Ptoemi',
+                filters={'sri_establishment_lnk': est.name, 'disabled': 0},
+                fields=['name', 'record_name', 'sri_environment_lnk', 'test_dev_email'],
+                order_by='record_name asc'):
+            puntos.append(frappe._dict(
+                name=pto.name,
+                codigo=f"{est.record_name}-{pto.record_name}",
+                ambiente=pto.sri_environment_lnk,
+                test_dev_email=pto.test_dev_email,
+            ))
+    return puntos
+
+@frappe.whitelist()
 def validate_sri_settings():
     result = {}
     groups=[]
@@ -49,18 +67,25 @@ def validate_sri_settings():
         
         header.append({"index": 0, "description": "Empresa", "value": company_item.name})
         
-        print(company_item.sri_active_environment)
-        #sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'name': company_item.sri_active_environment })
-        #print(sri_environment)
-
-        if (company_item.sri_active_environment):
-            #print(sri_environment.name)
-            #print(sri_environment.id)
-            header.append({"index": 0, "description": "Ambiente", "value": company_item.sri_active_environment})
+        # Ambiente SRI: lo define cada punto de emisión (DES = pruebas, PRO = producción)
+        puntos = get_puntos_emision_activos(company_item.name)
+        if puntos:
+            for ambiente in ("PRO", "DES"):
+                codigos = [p.codigo for p in puntos if p.ambiente == ambiente]
+                if codigos:
+                    header.append({"index": 0, "description": f"Puntos de emisión {ambiente}", "value": ", ".join(codigos)})
+            sin_correo = [p.codigo for p in puntos if p.ambiente == "DES" and not p.test_dev_email]
+            if sin_correo:
+                alerts.append({"index": 0,
+                               "description": "Puntos de pruebas sin correo de pruebas: " + ", ".join(sin_correo),
+                               "help": "Configure 'Test Dev Environment Email' en esos puntos de emisión.",
+                               "type": "error"})
+                SettingsAreReady = False
         else:
-            alerts.append({"index": 0, "description": "Ambiente de SRI no seleccionado", "type":"error"})
+            alerts.append({"index": 0, "description": "No hay puntos de emisión activos",
+                           "help": "Cree un establecimiento y un punto de emisión (con su ambiente) para la compañía.",
+                           "type": "error"})
             SettingsAreReady = False
-            
 
         #regional_settings_ec = frappe.get_last_doc('Regional Settings Ec', filters = { 'name': company_item.regional_settings_ec })
         if(company_item.regional_settings_ec):
@@ -72,16 +97,6 @@ def validate_sri_settings():
         #print(regional_settings_ec)
         #print('regional_settings_ec.signature_tool')
         #print(regional_settings_ec.signature_tool)
-
-        sri_sequences = frappe.get_all('Sri Sequence', filters = { 'company_id': company_item.name })
-        #print('Secuencias')
-        #print(len(sri_sequences))
-        if(len(sri_sequences)==0):
-            #print('SE REQUIERE CREAR SECUENCIAS para' + company_item.name)
-            alerts.append({"index": 0, "description": "Secuencias no creadas", "help":"Vaya a Secuencias SRI y haga clic en el botón 'Crear Secuencias''", "type":"error"})
-            SettingsAreReady = False
-        else:
-            header.append({"index": 0, "description": "Secuencias SRI", "value": len(sri_sequences)})
 
         print_formats = frappe.get_all('Print Format', filters = { "name": ["in", ['Factura SRI','Retención SRI','Guía de Remisión SRI']] })
         #print('---------PRINTS')

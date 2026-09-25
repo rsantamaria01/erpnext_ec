@@ -59,6 +59,7 @@ frappe.ui.form.on('Purchase Withholding Sri Ec',
 {
     setup: async function(frm) 
     {
+        SetSriPuntoQueries(frm);
         //console.log(cur_frm);
 
         /*******************************/
@@ -160,7 +161,7 @@ frappe.ui.form.on('Purchase Withholding Sri Ec',
 	},
 	estab: function(frm)
 	{
-	    console.log('estab event!!!');
+	    ClearSriPuntoIfMismatch(frm);
 	},
     onload: function(frm) 
     {

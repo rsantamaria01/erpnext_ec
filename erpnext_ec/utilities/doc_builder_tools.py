@@ -184,15 +184,9 @@ def get_full_company_sri(def_company):
         compania_sri['granContribuyenteResolucion'] = getattr(doc, 'sri_gran_contribuyente_resolucion', '') or ''
         compania_sri['rucProveedor'] = getattr(doc, 'sri_ruc_proveedor', '') or ''
 
-        sri_enviroment = frappe.get_all('Sri Environment', fields='*', filters={'name': doc.sri_active_environment})
-        #Se asigna por defecto ambiente desarrollo
-        sri_active_environment = 1
+        # El ambiente SRI ya no es de la compañía: lo define el punto de emisión
+        # de cada documento (ver set_ambiente_sri).
 
-        if(sri_enviroment):
-            sri_active_environment = sri_enviroment[0].id
-
-        compania_sri['ambiente'] = sri_active_environment
-        
         company_address_primary = None
         company_address_first = None
 
@@ -228,6 +222,64 @@ def get_full_company_sri(def_company):
         #print(compania_sri)
         return compania_sri
     
+
+def get_ptoemi_sri(doc):
+    """Punto de emisión del documento, validado contra su establecimiento y compañía.
+
+    El punto de emisión es la única fuente del ambiente SRI (DES/PRO) del documento.
+    doc.ptoemi / doc.estab son nombres de Link (PTO-00001 / EST-00001); para el
+    establecimiento se acepta también el código SRI (001) por compatibilidad.
+    """
+    if not doc.get('ptoemi'):
+        frappe.throw(_("No se ha definido el punto de emisión (ptoEmi). Configure los datos SRI para emitir el comprobante electrónico."))
+
+    pto = frappe.db.get_value('Sri Ptoemi', doc.ptoemi,
+        ['name', 'record_name', 'sri_establishment_lnk', 'sri_environment_lnk', 'disabled', 'test_dev_email'],
+        as_dict=True)
+    if not pto:
+        frappe.throw(_("No existe el punto de emisión {0}.").format(doc.ptoemi))
+    if pto.disabled:
+        frappe.throw(_("El punto de emisión {0} ({1}) está deshabilitado.").format(pto.name, pto.record_name))
+
+    estab = frappe.db.get_value('Sri Establishment', pto.sri_establishment_lnk,
+        ['name', 'record_name', 'company_link', 'disabled'], as_dict=True)
+    if not estab:
+        frappe.throw(_("El punto de emisión {0} no tiene un establecimiento válido.").format(pto.name))
+    if doc.get('estab') and doc.estab not in (estab.name, estab.record_name):
+        frappe.throw(_("El punto de emisión {0} ({1}) no pertenece al establecimiento {2}.").format(
+            pto.name, pto.record_name, doc.estab))
+    if estab.company_link and doc.get('company') and estab.company_link != doc.company:
+        frappe.throw(_("El establecimiento {0} no pertenece a la compañía {1}.").format(estab.name, doc.company))
+    if estab.disabled:
+        frappe.throw(_("El establecimiento {0} ({1}) está deshabilitado.").format(estab.name, estab.record_name))
+
+    ambiente = frappe.utils.cint(frappe.db.get_value('Sri Environment', pto.sri_environment_lnk, 'id'))
+    if ambiente not in (1, 2):
+        frappe.throw(_("El punto de emisión {0} no tiene un ambiente SRI válido.").format(pto.name))
+
+    pto.ambiente = ambiente
+    pto.estab_name = estab.name
+    return pto
+
+
+def set_ambiente_sri(doc):
+    """Asigna doc.ambiente (1 = pruebas, 2 = producción) y doc.test_dev_email
+    según el punto de emisión del documento.
+
+    Si el documento ya fue autorizado, el ambiente se toma de su número de
+    autorización (dígito 24 de la clave de acceso), así el RIDE de un
+    documento antiguo no cambia aunque luego se cambie el ambiente del punto.
+    """
+    pto = get_ptoemi_sri(doc)
+    doc.ambiente = pto.ambiente
+
+    numero = (doc.get('numeroautorizacion') or '').strip()
+    if len(numero) == 49 and numero.isdigit() and numero[23] in ('1', '2'):
+        doc.ambiente = int(numero[23])
+
+    doc.test_dev_email = pto.test_dev_email if doc.ambiente == 1 else None
+    return pto
+
 
 def get_full_customer_sri(def_customer):
     # Variable de retorno
@@ -932,96 +984,6 @@ def ObtenerModulo10(cadenaNumeros):
     return 10 - residuo if residuo != 0 else 0
 
 
-def setSecuencial_obs(doc, typeDocSri):
-    company_object = frappe.get_last_doc('Company', filters = { 'name': doc.company  })
-    
-    if typeDocSri ==  "FAC":
-        document_object = frappe.get_last_doc('Sales Invoice', filters = { 'name': doc.name})
-        if(document_object):
-            if(document_object.secuencial > 0):
-                print("Secuencial ya asignado!")
-                print(document_object.secuencial)
-                return True
-
-    elif typeDocSri ==  "NCR":			
-        #print(doc)
-        document_object = frappe.get_last_doc('Sales Invoice', filters = { 'name': doc.name})
-        if(document_object):
-            if(document_object.secuencial > 0):
-                print("Secuencial ya asignado!")
-                print(document_object.secuencial)
-                return True
-    elif typeDocSri ==  "GRS":
-			
-        #print(doc)
-        document_object = frappe.get_last_doc('Delivery Note', filters = { 'name': doc.name})
-        if(document_object):
-            if(document_object.secuencial > 0):
-                print("Secuencial ya asignado!")
-                print(document_object.secuencial)
-                return True
-    
-    elif typeDocSri ==  "CRE":
-			
-        #print(doc)
-        document_object = frappe.get_last_doc('Purchase Withholding Sri Ec', filters = { 'name': doc.name})
-        if(document_object):
-            if(document_object.secuencial > 0):
-                print("Secuencial ya asignado!")
-                print(document_object.secuencial)
-                return True
-    
-    elif typeDocSri ==  "LIQ":
-			
-        #print(doc)
-        document_object = frappe.get_last_doc('Purchase Invoice', filters = {'name': doc.name})
-        if(document_object):
-            if(document_object.secuencial > 0):
-                print("Secuencial ya asignado!")
-                print(document_object.secuencial)
-                return True
-
-	#PROCESO GENERAL -----
-	#doc.ambiente ---- aun no asignado   --- probablemente desde company
-	#environment_object = frappe.get_last_doc('Sri Environment', filters = { 'id': 1  })
-	#print(environment_object.name)
-	#print(environment_object.id)
-    print("--------------------------")
-    nuevo_secuencial = 0
-
-	#TODO: Agregar filtro por empresa, no fue considerado al inicio, se requerirá cambios en el modelo
-	#TODO: Falta automatizar el filtro, por ahora se puso id = 1
-	#sequence_object = frappe.get_last_doc('Sri Sequence', filters = { 'id': 1, 'sri_environment_lnk': environment_object.name, 'sri_type_doc_lnk': typeDocSri })
-	
-	#sequence_object = frappe.get_last_doc('Sri Sequence', filters = { 'company_id': company_object.name, 'sri_environment_lnk': company_object.sri_active_environment, 'sri_type_doc_lnk': typeDocSri })
-    sequence_object = frappe.get_list('Sri Sequence', fields = ['*'], filters = { 'company_id': company_object.name, 'sri_environment_lnk': company_object.sri_active_environment, 'sri_type_doc_lnk': typeDocSri })
-	#sequence_object = frappe.get_list('Sri Sequence', filters = { 'reference_name': doc_name })
-
-	#print(sequence_object[0])
-    if (sequence_object):
-        print(sequence_object[0].value)
-        nuevo_secuencial = sequence_object[0].value
-        nuevo_secuencial += 1
-        print(nuevo_secuencial)
-		#Se asigna al documento
-        document_object.db_set('secuencial', nuevo_secuencial)
-		#Se asigna a la tabla de secuenciales
-
-		#Actualizar dato de secuencia
-		#doc_sequence_object = frappe.get_last_doc('Sri Sequence', filters = { 'id': sequence_object[0].id })
-        doc_sequence_object = frappe.get_last_doc('Sri Sequence', 
-				filters = { 'company_id': company_object.name,
-					  'sri_environment_lnk': company_object.sri_active_environment, 
-					  'sri_type_doc_lnk': typeDocSri })
-		
-        doc_sequence_object.db_set('value', nuevo_secuencial)
-		
-        frappe.db.commit()
-	#	return True
-	#else:
-	#	return False	
-    return nuevo_secuencial
-
 def setSecuencial(doc, typeDocSri):
     company_object = frappe.get_last_doc('Company', filters = { 'name': doc.company  })
     
@@ -1075,58 +1037,30 @@ def setSecuencial(doc, typeDocSri):
     print("--------------------------")
     nuevo_secuencial = 0
 
-    # doc.estab / doc.ptoemi llegan como nombre del Link (EST-00001 / PTO-00002);
-    # se aceptan tambien los codigos SRI (001) por compatibilidad.
-    establishment_name = None
-    for est_filter in ({'name': doc.estab}, {'record_name': doc.estab}):
-        est_filter['company_link'] = company_object.name
-        found = frappe.get_all('Sri Establishment', filters=est_filter, pluck='name')
-        if found:
-            establishment_name = found[0]
-            break
+    # El documento apunta directamente a su punto de emisión (PTO-00001); ese
+    # registro define el ambiente y lleva los contadores. Ya no hay "gemelos"
+    # DES/PRO por código.
+    pto = get_ptoemi_sri(doc)
+    ptoemi_name = pto.name
 
-    if(establishment_name):
-        # Sri Ptoemi ya no es tabla hija: se enlaza por sri_establishment_lnk, no por parent.
-        # El documento apunta a un registro (p.ej. PTO-00001 DES); se usa su CODIGO (001)
-        # y se toma el registro de ese codigo en el ambiente activo de la compañía,
-        # para que el mismo documento funcione en DES y en PRO sin editarlo.
-        pto_code = frappe.db.get_value('Sri Ptoemi', doc.ptoemi, 'record_name') or doc.ptoemi
-        found = frappe.get_all('Sri Ptoemi', filters={
-            'record_name': pto_code,
-            'sri_establishment_lnk': establishment_name,
-            'sri_environment_lnk': company_object.sri_active_environment,
-        }, pluck='name')
-        if len(found) > 1:
-            frappe.throw(_("Hay más de un punto de emisión {0} en {1} para el ambiente {2}.").format(
-                pto_code, establishment_name, company_object.sri_active_environment))
-        ptoemi_name = found[0] if found else None
+    seq_field = {
+        "FAC": "sec_factura",
+        "NCR": "sec_notacredito",
+        "GRS": "sec_guiaremision",
+        "CRE": "sec_comprobanteretencion",
+        "LIQ": "sec_liquidacioncompra",
+        "NDE": "sec_notadebito",
+    }.get(typeDocSri)
 
-        if not ptoemi_name:
-            frappe.throw(_("No existe un punto de emisión {0} del establecimiento {1} para el ambiente {2}.").format(
-                doc.ptoemi, doc.estab, company_object.sri_active_environment))
-
-        seq_field = {
-            "FAC": "sec_factura",
-            "NCR": "sec_notacredito",
-            "GRS": "sec_guiaremision",
-            "CRE": "sec_comprobanteretencion",
-            "LIQ": "sec_liquidacioncompra",
-            "NDE": "sec_notadebito",
-        }.get(typeDocSri)
-
-        if seq_field:
-            # Bloqueo de fila para que dos envíos simultáneos no tomen el mismo número
-            actual = frappe.db.get_value('Sri Ptoemi', ptoemi_name, seq_field, for_update=True) or 0
-            nuevo_secuencial = int(actual) + 1
-            frappe.db.set_value('Sri Ptoemi', ptoemi_name, seq_field, nuevo_secuencial, update_modified=False)
-            document_object.db_set('secuencial', nuevo_secuencial)
-            frappe.db.commit()
-    else:
-        frappe.throw(_("No se encontró el establecimiento {0} para la compañía {1}.").format(doc.estab, company_object.name))
+    if seq_field:
+        # Bloqueo de fila para que dos envíos simultáneos no tomen el mismo número
+        actual = frappe.db.get_value('Sri Ptoemi', ptoemi_name, seq_field, for_update=True) or 0
+        nuevo_secuencial = int(actual) + 1
+        frappe.db.set_value('Sri Ptoemi', ptoemi_name, seq_field, nuevo_secuencial, update_modified=False)
+        document_object.db_set('secuencial', nuevo_secuencial)
+        frappe.db.commit()
 
     return nuevo_secuencial
-    
-    return 0
     
 def get_full_establishment(record_name):
     if not record_name:
