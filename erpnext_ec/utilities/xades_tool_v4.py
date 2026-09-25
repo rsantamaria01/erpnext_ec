@@ -1,6 +1,6 @@
 from typing import Union
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 import base64
 import hashlib
 from lxml import etree
@@ -28,7 +28,7 @@ def get_key_info(certificate_number: int, certificate_x509: str, modulus: str, e
     return f"""<ds:KeyInfo Id="Certificate{certificate_number}"><ds:X509Data><ds:X509Certificate>{certificate_x509}</ds:X509Certificate><ds:X509IssuerSerial><ds:X509IssuerName>{issuer_name}</ds:X509IssuerName><ds:X509SerialNumber>{serial_number}</ds:X509SerialNumber></ds:X509IssuerSerial></ds:X509Data><ds:KeyValue><ds:RSAKeyValue><ds:Modulus>{modulus}</ds:Modulus><ds:Exponent>{exponent}</ds:Exponent></ds:RSAKeyValue></ds:KeyValue></ds:KeyInfo>"""
 
 def get_signed_properties(signature_number: int, signed_properties_number: int, certificate_x509_hash: str, X509SerialNumber: str, reference_id_number: int, issuer_name: str) -> str:
-    signing_time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    signing_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     return f"""<etsi:SignedProperties Id="Signature{signature_number}-SignedProperties{signed_properties_number}"><etsi:SignedSignatureProperties><etsi:SigningTime>{signing_time}</etsi:SigningTime><etsi:SigningCertificate><etsi:Cert><etsi:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod><ds:DigestValue>{certificate_x509_hash}</ds:DigestValue></etsi:CertDigest><etsi:IssuerSerial><ds:X509IssuerName>{issuer_name}</ds:X509IssuerName><ds:X509SerialNumber>{X509SerialNumber}</ds:X509SerialNumber></etsi:IssuerSerial></etsi:Cert></etsi:SigningCertificate></etsi:SignedSignatureProperties><etsi:SignedDataObjectProperties><etsi:DataObjectFormat ObjectReference="#Reference-ID-{reference_id_number}"><etsi:Description>contenido comprobante</etsi:Description><etsi:MimeType>text/xml</etsi:MimeType></etsi:DataObjectFormat></etsi:SignedDataObjectProperties></etsi:SignedProperties>"""
 
 def get_signed_info(signed_info_number: int, signed_properties_id_number: int, sha1_signed_properties: str, certificate_number: int, sha1_certificado: str, reference_id_number: int, sha1_comprobante: str, signature_number: int, signed_properties_number: int) -> str:
@@ -113,33 +113,54 @@ def parse_issuer_name(issuer: Name) -> str:
     
     return base_dn
 
-def sign_xml(p12_data: bytes, password: bytes, xml: str) -> str:
+DS_NS = "http://www.w3.org/2000/09/xmldsig#"
+ETSI_NS = "http://uri.etsi.org/01903/v1.3.2#"
+
+
+def _c14n(element) -> bytes:
+    """C14N 1.0 inclusiva (sin comentarios) del elemento EN SU CONTEXTO: incluye
+    los namespaces heredados de los ancestros, igual que lo hará el SRI al validar."""
+    return etree.tostring(element, method="c14n", exclusive=False, with_comments=False)
+
+
+def sign_xml(p12_data: bytes, password: bytes, xml: Union[str, bytes]) -> str:
     """
-    Firma un documento XML usando XAdES-BES compatible con el SRI de Ecuador
+    Firma un comprobante XML con XAdES-BES (enveloped) compatible con el SRI de Ecuador.
+
+    Los digests de SignedProperties, KeyInfo y SignedInfo se calculan sobre los
+    nodos ya insertados en el documento, de modo que la canonicalización incluye
+    los namespaces declarados en la raíz del comprobante (p. ej. xmlns y xmlns:ds).
     """
     # Cargar certificado y llave privada
     private_key, cert, _ = pkcs12.load_key_and_certificates(p12_data, password)
 
-    # Extraer información del certificado
+    # Información del certificado
     pem = cert.public_bytes(serialization.Encoding.PEM).decode()
     certificate_x509 = get_x509_certificate(pem)
-    clean_base64 = certificate_x509.replace('\n', '')
-    certificate_x509_hash = sha1_base64(base64.b64decode(clean_base64))
+    certificate_x509_hash = sha1_base64(cert.public_bytes(serialization.Encoding.DER))
 
-    # Obtener información de la llave pública
     public_nums = cert.public_key().public_numbers()
     modulus = get_modulus(public_nums.n)
     exponent = get_exponent(public_nums.e)
     serial = cert.serial_number
-    
-    # Parsear el issuer name correctamente
     issuer_name = parse_issuer_name(cert.issuer)
 
-    # Canonicalizar el XML original
-    xml_c14n = canonicalize_lxml(xml)
-    sha1_invoice = sha1_base64(xml_c14n)
+    # Documento: se conserva tal cual (espacios incluidos); solo se quita la
+    # declaración XML para poder re-serializar con la nuestra.
+    if isinstance(xml, str):
+        xml_bytes = xml.encode("utf-8")
+    else:
+        xml_bytes = xml
+    parser = etree.XMLParser(remove_blank_text=False, resolve_entities=False)
+    root = etree.fromstring(xml_bytes, parser)
 
-    # Generar IDs aleatorios
+    if root.get("id") != "comprobante":
+        raise ValueError("El comprobante debe tener id=\"comprobante\" en el elemento raíz.")
+
+    # 0. Digest del comprobante (transformación enveloped-signature: sin la firma)
+    sha1_invoice = sha1_base64(_c14n(root))
+
+    # IDs aleatorios
     cert_num = random_integer()
     sig_num = random_integer()
     prop_num = random_integer()
@@ -148,36 +169,32 @@ def sign_xml(p12_data: bytes, password: bytes, xml: str) -> str:
     ref_id = random_integer()
     obj_num = random_integer()
 
-    # 1. Crear SignedProperties
+    # 1. Estructura completa con digests y firma provisionales
     signed_props = get_signed_properties(sig_num, prop_num, certificate_x509_hash, serial, ref_id, issuer_name)
-    signed_props_with_ns = signed_props.replace('<etsi:SignedProperties', '<etsi:SignedProperties ' + XML_NAMESPACES)
-    signed_props_c14n = canonicalize_lxml(signed_props_with_ns)
-    sha1_props = sha1_base64(signed_props_c14n)
-
-    # 2. Crear KeyInfo
     key_info = get_key_info(cert_num, certificate_x509, modulus, exponent, issuer_name, str(serial))
-    key_info_with_ns = key_info.replace('<ds:KeyInfo', '<ds:KeyInfo ' + XML_NAMESPACES)
-    key_info_c14n = canonicalize_lxml(key_info_with_ns)
-    sha1_keyinfo = sha1_base64(key_info_c14n)
+    signed_info = get_signed_info(info_num, prop_id, "PENDIENTE", cert_num, "PENDIENTE", ref_id,
+                                  sha1_invoice, sig_num, prop_num)
+    xades = get_xades_bes(XML_NAMESPACES, sig_num, obj_num, signed_info, "PENDIENTE", key_info, signed_props)
 
-    # 3. Crear SignedInfo
-    signed_info = get_signed_info(info_num, prop_id, sha1_props, cert_num, sha1_keyinfo, ref_id, sha1_invoice, sig_num, prop_num)
-    signed_info_with_ns = signed_info.replace('<ds:SignedInfo', '<ds:SignedInfo ' + XML_NAMESPACES)
-    signed_info_c14n = canonicalize_lxml(signed_info_with_ns)
+    signature_el = etree.fromstring(xades.encode("utf-8"), parser)
+    root.append(signature_el)
 
-    # 4. Firmar el SignedInfo
-    sig_bytes = private_key.sign(signed_info_c14n, padding.PKCS1v15(), SHA1())
-    signature_b64 = split_string_every_n(base64.b64encode(sig_bytes).decode('ascii'), MAX_LINE_SIZE)
+    ns = {"ds": DS_NS, "etsi": ETSI_NS}
+    signed_props_el = signature_el.find(".//etsi:SignedProperties", ns)
+    key_info_el = signature_el.find("ds:KeyInfo", ns)
+    signed_info_el = signature_el.find("ds:SignedInfo", ns)
+    refs = signed_info_el.findall("ds:Reference", ns)
 
-    # 5. Construir el XAdES completo
-    xades = get_xades_bes(XML_NAMESPACES, sig_num, obj_num, signed_info, signature_b64, key_info, signed_props)
+    # 2. Digests de SignedProperties y KeyInfo, canonicalizados dentro del documento
+    refs[0].find("ds:DigestValue", ns).text = sha1_base64(_c14n(signed_props_el))
+    refs[1].find("ds:DigestValue", ns).text = sha1_base64(_c14n(key_info_el))
 
-    # 6. Insertar la firma en el XML original
-    root = ET.fromstring(xml)
-    tail = f"</{root.tag}>"
-    signed_xml = xml.replace(tail, xades + tail)
+    # 3. Firma RSA-SHA1 del SignedInfo canonicalizado en contexto
+    sig_bytes = private_key.sign(_c14n(signed_info_el), padding.PKCS1v15(), SHA1())
+    signature_el.find("ds:SignatureValue", ns).text = split_string_every_n(
+        base64.b64encode(sig_bytes).decode("ascii"), MAX_LINE_SIZE)
 
-    return signed_xml
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding="unicode")
 
 
 # Integración con ERPNext
