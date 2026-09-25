@@ -38,6 +38,18 @@ def execute():
 				  "raw_printing": 0,
 			},
 			{
+                  "doc_type" : "Sales Invoice",
+                  "name" : "Nota de Débito SRI",
+                  "module" : "Accounts",
+				  "standard": 0,
+				  "custom_format": 1,
+				  "print_format_type": "Jinja",
+				  "default_print_language":"es-EC",
+                  "source_path" : "debit_note_sri_ride.html",
+				  "disabled": 0,
+				  "raw_printing": 0,
+			},
+			{
                   "doc_type" : "SRI Comprobante de Retencion",
                   "name" : "Retención SRI",
                   "module" : "Accounts",

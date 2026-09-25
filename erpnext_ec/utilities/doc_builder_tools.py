@@ -1035,7 +1035,12 @@ def setSecuencial(doc, typeDocSri):
                 print(document_object.secuencial)
                 return 0
     elif typeDocSri ==  "NDE":
-        pass	
+        document_object = frappe.get_last_doc('Sales Invoice', filters = { 'name': doc.name})
+        if(document_object):
+            if(document_object.secuencial > 0):
+                print("Secuencial ya asignado!")
+                print(document_object.secuencial)
+                return 0
     
     print("--------------------------")
     nuevo_secuencial = 0

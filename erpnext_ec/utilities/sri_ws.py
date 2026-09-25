@@ -154,6 +154,11 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 			template_name = 'Nota de Crédito SRI Body'
 			print_format_name = 'Nota de Crédito SRI'
 			email_subject = f'Nota de Crédito {doc_data.estab}-{doc_data.ptoemi}-{doc_data.secuencial:09d}'
+	elif typeDocSri == "NDE":
+			doc_data = build_doc_nde(doc_name)
+			template_name = 'Nota de Débito SRI Body'
+			print_format_name = 'Nota de Débito SRI'
+			email_subject = f'Nota de Débito {doc_data.estab}-{doc_data.ptoemi}-{doc_data.secuencial:09d}'
 	elif typeDocSri == "GRS":
 			doc_data = build_doc_grs(doc_name)
 			template_name = 'Guia Remision Sri Body'
@@ -247,16 +252,20 @@ def download_pdf(doc_name, typeDocSri, typeFile, siteName):
 	elif typeDocSri == "GRS":
 			doc_data = build_doc_grs(doc_name)
 			doctype_erpnext = 'Delivery Note'
-			print_format_name = 'Guia de Remision SRI'
+			print_format_name = 'Guía de Remisión SRI'
 			
 	elif typeDocSri == "CRE":
 			doc_data = build_doc_cre(doc_name)			
 			doctype_erpnext = 'SRI Comprobante de Retencion'
-			print_format_name = 'Retencion SRI'
+			print_format_name = 'Retención SRI'
 	elif typeDocSri == "NCR":
 			doc_data = build_doc_ncr(doc_name)			
 			doctype_erpnext = 'Sales Invoice'
 			print_format_name = 'Nota de Crédito SRI'
+	elif typeDocSri == "NDE":
+			doc_data = build_doc_nde(doc_name)
+			doctype_erpnext = 'Sales Invoice'
+			print_format_name = 'Nota de Débito SRI'
 	elif typeDocSri == "LIQ":
 			doc_data = build_doc_liq(doc_name)			
 			doctype_erpnext = 'Purchase Invoice'
@@ -778,7 +787,7 @@ def updateStatusDocument(doc, typeDocSri, response_json):
 				fechaAutorizacion = parser.parse(response_json.data.autorizaciones.autorizacion[0].fechaAutorizacion)				
 				document_object.db_set('fechaAutorizacion', fechaAutorizacion)   
 
-	if typeDocSri ==  "NCR":
+	if typeDocSri in ("NCR", "NDE"):
 			document_object = frappe.get_last_doc('Sales Invoice', filters = { 'name': doc.name })
 			if(document_object):
 				document_object.db_set('numeroautorizacion', response_json.data.autorizaciones.autorizacion[0].numeroAutorizacion)
@@ -1006,7 +1015,7 @@ def updateStatusDocument_native(doc, typeDocSri, response_json):
 				fechaAutorizacion = fecha_con_zona.replace(tzinfo=None)
 				document_object.db_set('fechaautorizacion', fechaAutorizacion)
 
-	if typeDocSri ==  "NCR":
+	if typeDocSri in ("NCR", "NDE"):
 			document_object = frappe.get_last_doc('Sales Invoice', filters = { 'name': doc.name })
 			if(document_object):
 				document_object.db_set('numeroautorizacion', response_json['autorizaciones']['autorizacion']['numeroAutorizacion'])
@@ -1053,6 +1062,7 @@ def sincronizar_plantillas_sri(incluir_email=1):
 	rides = {
 		"Factura SRI": "sales_invoice_sri_ride.html",
 		"Nota de Crédito SRI": "credit_note_sri_ride.html",
+		"Nota de Débito SRI": "debit_note_sri_ride.html",
 		"Retención SRI": "withdraw_purchase_sri_ride.html",
 		"Guía de Remisión SRI": "delivery_note_sri_ride.html",
 		"Liquidación de Compra SRI": "purchase_settlement_sri_ride.html",
@@ -1060,6 +1070,7 @@ def sincronizar_plantillas_sri(incluir_email=1):
 	emails = {
 		"Factura SRI Body": "sales_invoice_sri_email.html",
 		"Nota de Crédito SRI Body": "credit_note_sri_email.html",
+		"Nota de Débito SRI Body": "debit_note_sri_email.html",
 		"Guia Remision Sri Body": "delivery_note_sri_email.html",
 		"Comprobante Retencion Sri Body": "withdraw_purchase_sri_email.html",
 		"Liquidación de Compra Sri Body": "purchase_settlement_sri_email.html",

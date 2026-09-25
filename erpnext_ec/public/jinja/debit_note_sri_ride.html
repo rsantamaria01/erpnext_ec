@@ -129,7 +129,7 @@
       <div class="sep"></div>
       <table class="box">
         <tr class="gris"><td><b>Forma de pago</b></td><td class="r"><b>Valor</b></td><td class="c"><b>Plazo</b></td></tr>
-        {% for p in b.pagos %}
+        {% for p in (b.pagos or []) %}
         <tr><td>{{ p.formaPago }} &ndash; {{ p.formaPagoDescripcion }}</td><td class="r">{{ '{:,.2f}'.format(p.total) }}</td><td class="c">{{ p.plazo }} {{ p.unidadTiempo }}</td></tr>
         {% endfor %}
       </table>

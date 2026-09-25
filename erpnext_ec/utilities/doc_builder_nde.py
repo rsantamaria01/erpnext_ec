@@ -94,6 +94,10 @@ def build_doc_nde(doc_name):
 
 		doc.infoAdicional = build_infoAdicional_sri(doc_name, customer_email_id, customer_phone)
 
+		# Formas de pago (el RIDE de la nota de débito las muestra)
+		doc.paymentsItems = get_payments_sri(doc.name)
+		doc.pagos = build_pagos(doc.paymentsItems) or []
+
 		#Simulando error
 		sri_validated = 'error'
 		sri_validated_message += 'Cliente requerido-'

@@ -31,6 +31,16 @@ def execute():
 				  "subject": "Nota de Crédito -",
 			},
 			{
+                  "doc_type" : "Sales Invoice",
+                  "name" : "Nota de Débito SRI Body",
+                  "module" : "Accounts",
+				  "standard": 0,
+				  "custom_format": 1,
+                  "source_path" : "debit_note_sri_email.html",
+				  "disabled": 0,
+				  "subject": "Nota de Débito -",
+			},
+			{
                   "doc_type" : "Delivery Note",
                   "name" : "Guia Remision Sri Body",
                   "module" : "Accounts",

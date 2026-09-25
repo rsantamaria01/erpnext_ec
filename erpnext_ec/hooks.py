@@ -57,6 +57,7 @@ jinja = {
 		"erpnext_ec.utilities.doc_builder_cre.build_doc_cre_with_images",
 		"erpnext_ec.utilities.doc_builder_grs.build_doc_grs_with_images",
 		"erpnext_ec.utilities.doc_builder_ncr.build_doc_ncr_with_images",
+		"erpnext_ec.utilities.doc_builder_nde.build_doc_nde_with_images",
 		"erpnext_ec.utilities.doc_builder_liq.build_doc_liq_with_images",
 		"erpnext_ec.utilities.tools.get_full_url",
 	],
