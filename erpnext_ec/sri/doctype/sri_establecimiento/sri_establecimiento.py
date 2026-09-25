@@ -27,3 +27,19 @@ class SRIEstablecimiento(Document):
 						self.record_name, self.company_link, duplicado
 					)
 				)
+
+	def on_update(self):
+		# el título de sus puntos (001-999 (DES)) incluye el código del establecimiento
+		if self.has_value_changed("record_name"):
+			from erpnext_ec.sri.doctype.sri_punto_de_emision.sri_punto_de_emision import titulo_punto
+
+			for p in frappe.get_all(
+				"SRI Punto de Emision",
+				filters={"sri_establishment_lnk": self.name},
+				fields=["name", "record_name", "sri_environment_lnk"],
+			):
+				frappe.db.set_value(
+					"SRI Punto de Emision", p.name, "titulo",
+					titulo_punto(self.name, p.record_name, p.sri_environment_lnk),
+					update_modified=False,
+				)

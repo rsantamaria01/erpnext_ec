@@ -24,7 +24,8 @@
   "sec_notadebito",
   "sec_comprobanteretencion",
   "sec_liquidacioncompra",
-  "sec_guiaremision"
+  "sec_guiaremision",
+  "titulo"
  ],
  "fields": [
   {
@@ -146,11 +147,20 @@
    "in_list_view": 1,
    "in_preview": 1,
    "label": "Guía Remisión"
+  },
+  {
+   "fieldname": "titulo",
+   "fieldtype": "Data",
+   "label": "Punto de emisión",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1,
+   "description": "Se calcula al guardar: establecimiento-punto (ambiente). Es lo que se ve al elegir el punto en un documento."
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-26 13:00:00.000000",
+ "modified": "2026-09-26 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "SRI",
  "name": "SRI Punto de Emision",
@@ -187,11 +197,12 @@
    "role": "Accounts User"
   }
  ],
- "search_fields": "record_name, description, sri_establishment_lnk",
+ "search_fields": "record_name, description, sri_environment_lnk",
  "show_name_in_global_search": 1,
  "sort_field": "record_name",
  "sort_order": "ASC",
  "states": [],
- "title_field": "record_name",
- "track_changes": 1
+ "title_field": "titulo",
+ "track_changes": 1,
+ "show_title_field_in_link": 1
 }

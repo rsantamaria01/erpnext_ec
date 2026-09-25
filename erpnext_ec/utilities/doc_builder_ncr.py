@@ -90,7 +90,7 @@ def build_doc_ncr(doc_name):
 				doc.numDocModificado = docs_ret_ag.docidsri 
 				doc.fechaEmisionDocSustento = docs_ret_ag.fechaautorizacion
 				doc.valorModificacion = docs_ret_ag.grand_total
-				doc.motivo = 'DEVOLUCION'
+				doc.motivo = (doc.motivo or '').strip() or 'DEVOLUCION'
 
 		doc.infoAdicional = build_infoAdicional_sri(doc_name, customer_email_id, customer_phone)
 

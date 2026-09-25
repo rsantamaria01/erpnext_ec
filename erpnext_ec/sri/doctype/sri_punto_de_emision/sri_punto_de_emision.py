@@ -11,6 +11,8 @@ class SRIPuntodeEmision(Document):
 		if not re.fullmatch(r"\d{3}", self.record_name) or self.record_name == "000":
 			frappe.throw(_("El código del punto de emisión debe tener 3 dígitos y ser mayor a 000 (p. ej. 001)."))
 
+		self.titulo = titulo_punto(self.sri_establishment_lnk, self.record_name, self.sri_environment_lnk)
+
 		if self.sri_environment_lnk != "DES":
 			self.test_dev_email = None
 		elif not self.test_dev_email and not self.disabled:
@@ -35,3 +37,10 @@ class SRIPuntodeEmision(Document):
 						self.record_name, self.sri_establishment_lnk, duplicado
 					)
 				)
+
+
+def titulo_punto(establecimiento, codigo, ambiente):
+	"""Texto que se ve al elegir el punto en un documento: 001-999 (DES)."""
+	estab = frappe.db.get_value("SRI Establecimiento", establecimiento, "record_name") if establecimiento else None
+	titulo = f"{estab}-{codigo}" if estab else (codigo or "")
+	return f"{titulo} ({ambiente})" if ambiente else titulo
