@@ -111,9 +111,12 @@ def _enviar(factura):
 			json.dumps({"name": factura.name}), tipo, "Sales Invoice", frappe.local.site
 		)
 		frappe.db.commit()
-	except Exception:
+	except Exception as e:
 		frappe.db.rollback()
-		frappe.cache.set_value(clave_pausa, 1, expires_in_sec=PAUSA_TRAS_FALLO_SEG)
+		# Un choque de bloqueo (deadlock / error 1020) es transitorio: se
+		# reintenta en la próxima corrida en vez de pausar una hora.
+		if not isinstance(e, (frappe.QueryDeadlockError, frappe.QueryTimeoutError)):
+			frappe.cache.set_value(clave_pausa, 1, expires_in_sec=PAUSA_TRAS_FALLO_SEG)
 		frappe.log_error(
 			title=f"SRI envío automático: {factura.name}",
 			message=frappe.get_traceback(),

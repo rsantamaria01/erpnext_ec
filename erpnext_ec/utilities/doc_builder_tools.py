@@ -2,6 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 
 from datetime import datetime
+import time
 import frappe
 import frappe.utils
 from frappe import _
@@ -1064,14 +1065,42 @@ def setSecuencial(doc, typeDocSri):
     }.get(typeDocSri)
 
     if seq_field:
-        # Bloqueo de fila para que dos envíos simultáneos no tomen el mismo número
-        actual = frappe.db.get_value('SRI Punto de Emision', ptoemi_name, seq_field, for_update=True) or 0
-        nuevo_secuencial = int(actual) + 1
-        frappe.db.set_value('SRI Punto de Emision', ptoemi_name, seq_field, nuevo_secuencial, update_modified=False)
-        document_object.db_set('secuencial', nuevo_secuencial)
-        frappe.db.commit()
+        nuevo_secuencial = _tomar_secuencial(ptoemi_name, seq_field, document_object)
 
     return nuevo_secuencial
+
+
+def _tomar_secuencial(ptoemi_name, seq_field, document_object, intentos=3):
+    """Toma el siguiente secuencial del punto de emisión y lo asigna al documento.
+
+    Se hace en una transacción nueva: MariaDB 11.8 (innodb_snapshot_isolation=ON)
+    rechaza con el error 1020 un SELECT ... FOR UPDATE sobre una fila que cambió
+    después de que la transacción abrió su lectura, y en el envío automático la
+    transacción viene abierta desde el inicio de la tarea. Si aun así choca con
+    otro envío, se reintenta.
+    """
+    doctype = document_object.doctype
+    for intento in range(intentos):
+        frappe.db.commit()  # cierra la lectura anterior; lo previo ya estaba guardado
+        try:
+            ya = frappe.db.get_value(doctype, document_object.name, 'secuencial', for_update=True)
+            if frappe.utils.cint(ya) > 0:
+                # otro envío lo numeró mientras tanto: se usa ese número
+                frappe.db.commit()
+                document_object.secuencial = frappe.utils.cint(ya)
+                return document_object.secuencial
+            actual = frappe.db.get_value('SRI Punto de Emision', ptoemi_name, seq_field, for_update=True) or 0
+            nuevo = int(actual) + 1
+            frappe.db.set_value('SRI Punto de Emision', ptoemi_name, seq_field, nuevo, update_modified=False)
+            frappe.db.set_value(doctype, document_object.name, 'secuencial', nuevo, update_modified=False)
+            frappe.db.commit()
+            document_object.secuencial = nuevo
+            return nuevo
+        except frappe.QueryDeadlockError:
+            frappe.db.rollback()
+            if intento == intentos - 1:
+                raise
+            time.sleep(1 + intento)
     
 def get_full_establishment(record_name):
     if not record_name:
