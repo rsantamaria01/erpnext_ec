@@ -26,7 +26,7 @@ def execute():
 				  "raw_printing": 0,
 			},
 			{
-                  "doc_type" : "Purchase Withholding Sri Ec",
+                  "doc_type" : "SRI Comprobante de Retencion",
                   "name" : "Retención SRI",
                   "module" : "Accounts",
 				  "standard": 0,

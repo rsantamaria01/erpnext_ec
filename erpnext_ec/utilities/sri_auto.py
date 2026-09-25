@@ -72,7 +72,7 @@ def _pendientes(compania, limite):
 			and ifnull(si.ptoemi, '') != ''
 			and si.modified < %(hasta)s
 			and not exists (
-				select 1 from `tabXml Responses` x where x.doc_ref = si.name
+				select 1 from `tabSRI Respuestas XML` x where x.doc_ref = si.name
 			)
 		order by si.creation asc
 		limit %(limite)s

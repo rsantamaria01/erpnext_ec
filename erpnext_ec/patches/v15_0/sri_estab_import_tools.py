@@ -8,7 +8,7 @@ def get_last_sequencial_found(company_id, sri_type_doc_lnk, establishment, ptoem
 	doctype_map = {
 		"FAC": "Sales Invoice",
 		"GRS": "Delivery Note",
-		"CRE": "Purchase Withholding Sri Ec",
+		"CRE": "SRI Comprobante de Retencion",
 	}
 	doctype = doctype_map.get(sri_type_doc_lnk)
 	if not doctype:
@@ -56,7 +56,7 @@ def upsert_ptoemi(establishment_doc, establishment_record_name, company_id, chil
 	}
 
 	existing = frappe.get_all(
-		"Sri Ptoemi",
+		"SRI Punto de Emision",
 		filters={
 			"record_name": record_name,
 			"sri_establishment_lnk": establishment_doc.name,
@@ -66,13 +66,13 @@ def upsert_ptoemi(establishment_doc, establishment_record_name, company_id, chil
 	)
 
 	if existing:
-		ptoemi_doc = frappe.get_doc("Sri Ptoemi", existing[0].name)
+		ptoemi_doc = frappe.get_doc("SRI Punto de Emision", existing[0].name)
 		for key, value in values.items():
 			setattr(ptoemi_doc, key, value)
 		ptoemi_doc.save(ignore_permissions=True)
 		print("  Ptoemi actualizado:", ptoemi_doc.name, record_name, environment)
 	else:
-		values["doctype"] = "Sri Ptoemi"
+		values["doctype"] = "SRI Punto de Emision"
 		values["naming_series"] = child.get("naming_series") or "PTO-."
 		ptoemi_doc = frappe.get_doc(values)
 		ptoemi_doc.insert(ignore_permissions=True)
@@ -147,7 +147,7 @@ def execute(company=None):
 
 	source_list = [
 		{
-			"doctype": "Sri Establishment",
+			"doctype": "SRI Establecimiento",
 			"json_file": "sri_establishment.json",
 			"action": "update",
 		},

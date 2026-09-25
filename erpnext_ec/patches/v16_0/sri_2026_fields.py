@@ -57,11 +57,11 @@ def execute():
 		"Anexos 23 y 25 Ficha SRI 2026: materiales de construcción y transporte comercial",
 	)
 
-	# Corrección del catálogo Sri Type Doc: Liquidación de Compra = 03
-	for sri_type in frappe.get_all("Sri Type Doc", fields=["name", "document_type"]):
+	# Corrección del catálogo SRI Tipo de Comprobante: Liquidación de Compra = 03
+	for sri_type in frappe.get_all("SRI Tipo de Comprobante", fields=["name", "document_type"]):
 		if sri_type.name == "LIQ" and sri_type.document_type != "03":
-			frappe.db.set_value("Sri Type Doc", "LIQ", "document_type", "03")
-			print("Sri Type Doc LIQ: document_type corregido a 03")
+			frappe.db.set_value("SRI Tipo de Comprobante", "LIQ", "document_type", "03")
+			print("SRI Tipo de Comprobante LIQ: document_type corregido a 03")
 			break
 
 	# Catálogo de tipos de identificación (Tabla 6 Ficha SRI 2026)
@@ -74,12 +74,12 @@ def execute():
 		"09": "PLACA",
 	}
 	for tipo_id, desc in tipo_ids.items():
-		if not frappe.db.exists("Sri Type Id", tipo_id):
+		if not frappe.db.exists("SRI Tipo de Identificacion", tipo_id):
 			frappe.get_doc({
-				"doctype": "Sri Type Id",
+				"doctype": "SRI Tipo de Identificacion",
 				"sri_id": tipo_id,
 				"description": desc,
 			}).insert(ignore_permissions=True)
-			print(f"Sri Type Id {tipo_id} - {desc} creado")
+			print(f"SRI Tipo de Identificacion {tipo_id} - {desc} creado")
 
 	frappe.db.commit()

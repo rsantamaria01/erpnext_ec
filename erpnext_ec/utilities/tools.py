@@ -34,11 +34,11 @@ def set_cookie(cookie_name, cookie_value):
 # electrónicos del SRI
 def get_puntos_emision_activos(company):
     """Puntos de emisión activos de la compañía, con su código estab-pto y ambiente."""
-    establecimientos = frappe.get_all('Sri Establishment',
+    establecimientos = frappe.get_all('SRI Establecimiento',
         filters={'company_link': company, 'disabled': 0}, fields=['name', 'record_name'])
     puntos = []
     for est in establecimientos:
-        for pto in frappe.get_all('Sri Ptoemi',
+        for pto in frappe.get_all('SRI Punto de Emision',
                 filters={'sri_establishment_lnk': est.name, 'disabled': 0},
                 fields=['name', 'record_name', 'sri_environment_lnk', 'test_dev_email'],
                 order_by='record_name asc'):
@@ -121,7 +121,7 @@ def validate_sri_settings():
 
         #Si es que se ha seleccionado firma electrónica
         if(company_item.sri_signature):
-            sri_signature = frappe.get_all('Sri Signature', 
+            sri_signature = frappe.get_all('SRI Firma Electronica', 
                                         filters = [
                     ["name", "=", company_item.sri_signature]
                 ])

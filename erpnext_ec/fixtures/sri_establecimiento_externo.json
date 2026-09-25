@@ -1,0 +1,20 @@
+[
+  {
+    "doctype": "SRI Establecimiento Externo",
+    "name": "001",
+    "id": "001",
+    "description": "001-Matrix-Ext-Estab"
+  },
+  {
+    "doctype": "SRI Establecimiento Externo",
+    "name": "002",
+    "id": "002",
+    "description": "002-Ext-Estab"
+  },
+  {
+    "doctype": "SRI Establecimiento Externo",
+    "name": "003",
+    "id": "003",
+    "description": "003-Ext-Estab"
+  }
+]

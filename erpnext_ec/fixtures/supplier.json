@@ -29,7 +29,7 @@
 		"fieldname": "typeidtax",
 		"inser_after": "tax_id",		
 		"doctype": "Custom Field",
-		"options":"Sri Type Id",
+		"options":"SRI Tipo de Identificacion",
 		"dt": "Supplier"
 	}
 ]

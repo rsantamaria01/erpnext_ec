@@ -70,7 +70,7 @@
 		"default": "",
 		"precision": "",
 		"length": 0,
-		"options": "Sri Type Id",
+		"options": "SRI Tipo de Identificacion",
 		"fetch_if_empty": 0,
 		"permlevel": 0,
 		"hidden": 0,

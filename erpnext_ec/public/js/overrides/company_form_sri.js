@@ -35,7 +35,7 @@ frappe.ui.form.on('Company', {
         // frm.fields_dict['sri_ride_cr_format'].get_query = function() {
         //     return {
         //         filters: {
-        //             doc_type: 'Purchase Withholding Sri Ec'
+        //             doc_type: 'SRI Comprobante de Retencion'
         //         }
         //     };
         // };

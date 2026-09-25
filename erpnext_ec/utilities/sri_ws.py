@@ -180,7 +180,7 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 	print(msg_template)
 
 	#build attachments
-	xml_responses = frappe.get_list('Xml Responses', fields = ['*'], filters = { 'doc_ref': doc_name, 'tip_doc': typeDocSri, 'sri_status': 'AUTORIZADO' })
+	xml_responses = frappe.get_list('SRI Respuestas XML', fields = ['*'], filters = { 'doc_ref': doc_name, 'tip_doc': typeDocSri, 'sri_status': 'AUTORIZADO' })
 
 	attach_file_name = doc_data.estab + doc_data.ptoemi + f'{doc_data.secuencial:09d}'
 
@@ -251,7 +251,7 @@ def download_pdf(doc_name, typeDocSri, typeFile, siteName):
 			
 	elif typeDocSri == "CRE":
 			doc_data = build_doc_cre(doc_name)			
-			doctype_erpnext = 'Purchase Withholding Sri Ec'
+			doctype_erpnext = 'SRI Comprobante de Retencion'
 			print_format_name = 'Retencion SRI'
 	elif typeDocSri == "NCR":
 			doc_data = build_doc_ncr(doc_name)			
@@ -289,7 +289,7 @@ def download_pdf(doc_name, typeDocSri, typeFile, siteName):
 @frappe.whitelist()
 def get_info_doc(doc_name, typeDocSri, doctype_erpnext, siteName):
 	#print(doc_name, typeDocSri, doctype_erpnext, siteName)
-	#xml_responses = frappe.get_list(doctype='Xml Responses', fields='*')
+	#xml_responses = frappe.get_list(doctype='SRI Respuestas XML', fields='*')
 	info_doc = {}
 	xml_responses = get_responses(doc_name, typeDocSri, doctype_erpnext, siteName)
 	
@@ -310,8 +310,8 @@ def get_info_doc(doc_name, typeDocSri, doctype_erpnext, siteName):
 @frappe.whitelist()
 def get_responses(doc_name, typeDocSri, doctype_erpnext, siteName):
 	#print(doc)
-	#xml_responses = frappe.get_list(doctype='Xml Responses', fields='*')
-	xml_responses = frappe.get_all('Xml Responses', filters={'doc_ref': doc_name, 'tip_doc': typeDocSri }, fields=['*'], order_by='creation')
+	#xml_responses = frappe.get_list(doctype='SRI Respuestas XML', fields='*')
+	xml_responses = frappe.get_all('SRI Respuestas XML', filters={'doc_ref': doc_name, 'tip_doc': typeDocSri }, fields=['*'], order_by='creation')
 	#print(xml_responses)
 	return xml_responses
 
@@ -527,7 +527,7 @@ def processAuthorization(doc_data,
 				#updateStatusDocument(doc_object_build, typeDocSri, response_json)
 				updateStatusDocument_native(doc_data, typeDocSri, response_json_auto_comprobantes)
 				#El correo se envía recién aquí, cuando el documento ya tiene número y
-				#fecha de autorización; antes salía desde after_insert de Xml Responses
+				#fecha de autorización; antes salía desde after_insert de SRI Respuestas XML
 				#y el RIDE adjunto decía "PENDIENTE".
 				enviar_email_autorizado(doc_data, typeDocSri, doctype_erpnext)
 	
@@ -587,7 +587,7 @@ def send_doc_internal(doc, typeDocSri, doctype_erpnext, siteName, regional_setti
 		server_timeout = settings.timeout
 
 		# El ambiente (y con él la URL del SRI) viene del punto de emisión del documento
-		sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'id': doc_data.ambiente })
+		sri_environment = frappe.get_last_doc('SRI Ambiente', filters = { 'id': doc_data.ambiente })
 
 		xml_string = build_xml_data(doc_data, doc_data.name, typeDocSri, siteName)
 
@@ -695,7 +695,7 @@ def registerResponse(doc, typeDocSri, doctype_erpnext, response_json, response_j
 	#TODO: El XML se guarda de forma incorrecta, pero al parecer es un comportamiento normal
 	# del frappe, hay que verificar.
 	xml_response_new = frappe.get_doc({
-					'doctype': 'Xml Responses',
+					'doctype': 'SRI Respuestas XML',
 					'doc_ref': doc.name,
 					#'xmldata': response_json.data.autorizaciones.autorizacion[0].comprobante,
 					'xmldata': response_json_text,
@@ -769,7 +769,7 @@ def updateStatusDocument(doc, typeDocSri, response_json):
 
 	elif typeDocSri ==  "CRE":
 			print(response_json)
-			document_object = frappe.get_last_doc('Purchase Withholding Sri Ec', filters = { 'name': doc.name })
+			document_object = frappe.get_last_doc('SRI Comprobante de Retencion', filters = { 'name': doc.name })
 			if(document_object):				
 				document_object.db_set('numeroAutorizacion', response_json.data.autorizaciones.autorizacion[0].numeroAutorizacion)
 				document_object.db_set('sri_estado', 200)
@@ -830,7 +830,7 @@ def registerResponse_native(doc, typeDocSri, doctype_erpnext, response_json, res
 		response_json_text = construir_xml_autorizado(response_json_text) or response_json_text
 
 	xml_response_new = frappe.get_doc({
-					'doctype': 'Xml Responses',
+					'doctype': 'SRI Respuestas XML',
 					'doc_ref': doc.name,
 					'xmldata': response_json_text,
 					'sri_status': sri_status,
@@ -995,7 +995,7 @@ def updateStatusDocument_native(doc, typeDocSri, response_json):
 
 	elif typeDocSri ==  "CRE":
 			print(response_json)
-			document_object = frappe.get_last_doc('Purchase Withholding Sri Ec', filters = { 'name': doc.name })
+			document_object = frappe.get_last_doc('SRI Comprobante de Retencion', filters = { 'name': doc.name })
 			if(document_object):
 				document_object.db_set('numeroAutorizacion', response_json['autorizaciones']['autorizacion']['numeroAutorizacion'])
 				document_object.db_set('sri_estado', 200)

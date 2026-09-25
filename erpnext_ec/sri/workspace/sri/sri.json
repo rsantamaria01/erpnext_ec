@@ -38,49 +38,49 @@
   },
   {
    "label": "Punto de Emisión",
-   "link_to": "Sri Ptoemi",
+   "link_to": "SRI Punto de Emision",
    "type": "DocType",
    "doc_view": "List"
   },
   {
    "label": "Establecimiento",
-   "link_to": "Sri Establishment",
+   "link_to": "SRI Establecimiento",
    "type": "DocType",
    "doc_view": "List"
   },
   {
    "label": "Firmas Electrónicas",
-   "link_to": "Sri Signature",
+   "link_to": "SRI Firma Electronica",
    "type": "DocType",
    "doc_view": "List"
   },
   {
    "label": "Retenciones",
-   "link_to": "Purchase Withholding Sri Ec",
+   "link_to": "SRI Comprobante de Retencion",
    "type": "DocType",
    "doc_view": "List"
   },
   {
    "label": "Respuestas XML",
-   "link_to": "Xml Responses",
+   "link_to": "SRI Respuestas XML",
    "type": "DocType",
    "doc_view": "List"
   },
   {
    "label": "Ambientes",
-   "link_to": "Sri Environment",
+   "link_to": "SRI Ambiente",
    "type": "DocType",
    "doc_view": "List"
   },
   {
    "label": "Tipos de Comprobante",
-   "link_to": "Sri Type Doc",
+   "link_to": "SRI Tipo de Comprobante",
    "type": "DocType",
    "doc_view": "List"
   },
   {
    "label": "Tipos de Identificación",
-   "link_to": "Sri Type Id",
+   "link_to": "SRI Tipo de Identificacion",
    "type": "DocType",
    "doc_view": "List"
   }

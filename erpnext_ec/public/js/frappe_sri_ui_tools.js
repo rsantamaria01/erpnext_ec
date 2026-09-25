@@ -14,7 +14,7 @@ function PrepareDocumentForSendV2(doc, DocTypeErpNext)
 				SendDeliveryNote(doc);
 			}
 			break;
-		case 'Purchase Withholding Sri Ec':
+		case 'SRI Comprobante de Retencion':
 			{
 				console.log('Método Comprobante de Retencion');
 				SendWithholding(doc);

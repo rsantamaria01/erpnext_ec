@@ -71,7 +71,7 @@ def validate_sales_invoice(doc_name):
     else:    
         alerts.append({"index": 0, "description": f"Punto de emisión correcto ({doc.ptoemi})", "type":"info"}) #green
 
-    sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'id': doc.ambiente })
+    sri_environment = frappe.get_last_doc('SRI Ambiente', filters = { 'id': doc.ambiente })
     #print(sri_environment.name)
     #print(sri_environment.id)
 
@@ -177,7 +177,7 @@ def validate_purchase_whithold_sri_ec(doc_name):
     #doc = frappe.get_doc('Sales Invoice', doc_name)
     doc = build_doc_cre(doc_name)
 
-    doctype_erpnext = 'Purchase Withholding Sri Ec'
+    doctype_erpnext = 'SRI Comprobante de Retencion'
     typeDocSri = 'CRE'
 
     #print(doctype_erpnext)
@@ -216,7 +216,7 @@ def validate_purchase_whithold_sri_ec(doc_name):
     else:    
         alerts.append({"index": 0, "description": f"Punto de emisión correcto ({doc.ptoemi})", "type":"info"}) #green
 
-    sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'id': doc.ambiente })
+    sri_environment = frappe.get_last_doc('SRI Ambiente', filters = { 'id': doc.ambiente })
     #print(sri_environment.name)
     #print(sri_environment.id)
 
@@ -284,7 +284,7 @@ def validate_purchase_settlement(doc_name):
     else:    
         alerts.append({"index": 0, "description": f"Punto de emisión correcto ({doc.ptoemi})", "type":"info"}) #green
 
-    sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'id': doc.ambiente })
+    sri_environment = frappe.get_last_doc('SRI Ambiente', filters = { 'id': doc.ambiente })
     #print(sri_environment.name)
     #print(sri_environment.id)
 

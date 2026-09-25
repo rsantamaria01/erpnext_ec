@@ -57,7 +57,7 @@
 		"label": "Establecimiento Cliente",
 		"fieldtype": "Link",
 		"fieldname": "customerEstablishment",
-		"options":"Sri External Establishment",
+		"options":"SRI Establecimiento Externo",
 		"inser_after": "customer",
 		"is_custom_field": 1,
 		"doctype": "Custom Field",

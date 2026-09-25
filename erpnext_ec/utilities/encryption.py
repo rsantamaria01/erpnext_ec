@@ -40,7 +40,7 @@ def decrypt_string(encrypted_string, key):
 
 def get_signature(tax_id):
 	tax_id = "091982695800111"
-	signature_object = frappe.get_last_doc("Sri Signature", filters={"tax_id": tax_id})
+	signature_object = frappe.get_last_doc("SRI Firma Electronica", filters={"tax_id": tax_id})
 	if signature_object and signature_object.p12:
 		f = get_file(signature_object.p12)
 		input_data = f[1]
@@ -49,7 +49,7 @@ def get_signature(tax_id):
 
 def get_ecrypted_signature(tax_id):
 	tax_id = "091982695800111"
-	signature_object = frappe.get_last_doc("Sri Signature", filters={"tax_id": tax_id})
+	signature_object = frappe.get_last_doc("SRI Firma Electronica", filters={"tax_id": tax_id})
 	if signature_object and signature_object.p12:
 		f = get_file(signature_object.p12)
 		input_data = f[1]

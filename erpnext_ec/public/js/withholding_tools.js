@@ -214,7 +214,7 @@ function resolveFromInternal(r, doc, btnProcess)
 
 function SendWithholdingToSri(documentIsReady, document_preview, doc)
 {
-	var doctype_erpnext = 'Purchase Withholding Sri Ec';
+	var doctype_erpnext = 'SRI Comprobante de Retencion';
 	var typeDocSri = 'CRE';
     var sitenameVar = frappe.boot.sitename;
 

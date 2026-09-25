@@ -1,0 +1,197 @@
+{
+ "actions": [],
+ "allow_events_in_timeline": 1,
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2023-12-21 01:27:30.810619",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "istable": 0,
+ "field_order": [
+  "record_name",
+  "description",
+  "sri_establishment_lnk",
+  "sri_environment_lnk",
+  "test_dev_email",
+  "disabled",
+  "naming_series",
+  "column_break_10001",
+  "sec_factura",
+  "sec_notacredito",
+  "sec_notadebito",
+  "sec_comprobanteretencion",
+  "sec_liquidacioncompra",
+  "sec_guiaremision"
+ ],
+ "fields": [
+  {
+   "default": "PTO-.",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Serie",
+   "no_copy": 1,
+   "options": "PTO-.",
+   "set_only_once": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "record_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Código",
+   "no_copy": 1,
+   "oldfieldname": "record_name",
+   "oldfieldtype": "Data",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Descripción",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "sri_establishment_lnk",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "options": "SRI Establecimiento",
+   "label": "Establecimiento",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sri_environment_lnk",
+   "fieldtype": "Link",
+   "default": "DES",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Ambiente",
+   "options": "SRI Ambiente",
+   "reqd": 1,
+   "description": "Define el ambiente SRI de todo documento emitido desde este punto: DES = pruebas (celcer), PRO = producción."
+  },
+  {
+   "depends_on": "eval:doc.sri_environment_lnk=='DES'",
+   "mandatory_depends_on": "eval:doc.sri_environment_lnk=='DES'",
+   "description": "Los documentos de este punto (ambiente de pruebas) se envían solo a este correo, nunca al cliente.",
+   "fieldname": "test_dev_email",
+   "fieldtype": "Data",
+   "options": "Email",
+   "label": "Test Dev Environment Email"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Deshabilitado"
+  },
+  {
+   "description": "Secuencial inicial por tipo de comprobante",
+   "fieldname": "column_break_10001",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "sec_factura",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Factura"
+  },
+  {
+   "default": "0",
+   "fieldname": "sec_notacredito",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Nota Crédito"
+  },
+  {
+   "default": "0",
+   "fieldname": "sec_notadebito",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Nota Débito"
+  },
+  {
+   "default": "0",
+   "fieldname": "sec_comprobanteretencion",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Comprobante Retención"
+  },
+  {
+   "default": "0",
+   "fieldname": "sec_liquidacioncompra",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Liquidación Compra"
+  },
+  {
+   "default": "0",
+   "fieldname": "sec_guiaremision",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Guía Remisión"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-09-26 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "SRI",
+ "name": "SRI Punto de Emision",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User"
+  }
+ ],
+ "search_fields": "record_name, description, sri_establishment_lnk",
+ "show_name_in_global_search": 1,
+ "sort_field": "record_name",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "record_name",
+ "track_changes": 1
+}

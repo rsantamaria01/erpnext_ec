@@ -24,14 +24,14 @@ def execute():
 		)
 		correo = correo[0][0] if correo else None
 
-	if correo and frappe.db.has_column("Sri Ptoemi", "test_dev_email"):
+	if correo and frappe.db.has_column("SRI Punto de Emision", "test_dev_email"):
 		for pto in frappe.get_all(
-			"Sri Ptoemi",
+			"SRI Punto de Emision",
 			filters={"sri_environment_lnk": "DES"},
 			fields=["name", "test_dev_email"],
 		):
 			if not pto.test_dev_email:
-				frappe.db.set_value("Sri Ptoemi", pto.name, "test_dev_email", correo, update_modified=False)
+				frappe.db.set_value("SRI Punto de Emision", pto.name, "test_dev_email", correo, update_modified=False)
 
 	frappe.db.delete("Workspace Sidebar Item", {"link_type": "DocType", "link_to": "Sri Sequence"})
 	frappe.db.commit()

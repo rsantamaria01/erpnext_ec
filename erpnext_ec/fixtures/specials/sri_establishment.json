@@ -1,6 +1,6 @@
 [
   {
-    "doctype": "Sri Establishment",
+    "doctype": "SRI Establecimiento",
     "name": "001",
     "id": "001",
     "record_name": "001",
@@ -34,7 +34,7 @@
     ]
   },
   {
-    "doctype": "Sri Establishment",
+    "doctype": "SRI Establecimiento",
     "name": "002",
     "id": "002",
     "record_name": "002",
@@ -42,7 +42,7 @@
     "company": "{{company}}"
   },
   {
-    "doctype": "Sri Establishment",
+    "doctype": "SRI Establecimiento",
     "name": "003",
     "id": "003",
     "record_name": "003",
@@ -50,7 +50,7 @@
     "company": "{{company}}"
   },
   {
-    "doctype": "Sri Establishment",
+    "doctype": "SRI Establecimiento",
     "name": "004",
     "id": "004",
     "record_name": "004",

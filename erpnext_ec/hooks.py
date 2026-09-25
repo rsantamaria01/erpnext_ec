@@ -43,7 +43,7 @@ doctype_list_js = {
 	"Purchase Invoice": "public/js/overrides/purchase_invoice_list_sri.js",
 	"Delivery Note": "public/js/overrides/delivery_note_list_sri.js",
 	"Print Format": "public/js/overrides/print_format_list_sri.js",
-	"Sri Establishment": "public/js/overrides/sri_establishment_list.js",
+	"SRI Establecimiento": "public/js/overrides/sri_establishment_list.js",
 }
 doctype_tree_js = {
 	"Account": "public/js/overrides/account_list_sri.js",
@@ -75,10 +75,10 @@ before_migrate = ["erpnext_ec.install.before_migrate"]
 # Hook on document methods and events
 
 doc_events = {
-	"Xml Responses": {
-		"validate": "erpnext_ec.sri.doctype.xml_responses.events.validate",
-		"on_update": "erpnext_ec.sri.doctype.xml_responses.events.on_update",
-		"after_insert": "erpnext_ec.sri.doctype.xml_responses.events.after_insert",
+	"SRI Respuestas XML": {
+		"validate": "erpnext_ec.sri.doctype.sri_respuestas_xml.events.validate",
+		"on_update": "erpnext_ec.sri.doctype.sri_respuestas_xml.events.on_update",
+		"after_insert": "erpnext_ec.sri.doctype.sri_respuestas_xml.events.after_insert",
 	}
 }
 

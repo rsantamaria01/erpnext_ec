@@ -131,7 +131,7 @@
   "fieldtype": "Link",
   "label": "Firma Electrónica",
   "insert_after": "sri_firma_section",
-  "options": "Sri Signature",
+  "options": "SRI Firma Electronica",
   "is_custom_field": 1
  },
  {

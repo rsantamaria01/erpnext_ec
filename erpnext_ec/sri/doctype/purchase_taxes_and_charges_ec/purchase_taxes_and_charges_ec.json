@@ -31,7 +31,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Cod Doc Sustento Link",
-   "options": "Sri Type Doc",
+   "options": "SRI Tipo de Comprobante",
    "reqd": 0
   },
   {
@@ -122,7 +122,7 @@
  "idx": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-09-26 11:00:00.000000",
+ "modified": "2026-09-26 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "SRI",
  "name": "Purchase Taxes and Charges Ec",

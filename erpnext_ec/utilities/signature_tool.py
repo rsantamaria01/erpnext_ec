@@ -32,7 +32,7 @@ class SriXmlData():
     def validate_password(self, sri_signature):
         #Se desencripta el password desde frappe para poder usarlo
         from frappe.utils.password import get_decrypted_password
-        password_p12 = get_decrypted_password('Sri Signature', sri_signature.name, "password")
+        password_p12 = get_decrypted_password('SRI Firma Electronica', sri_signature.name, "password")
 
         #print(password_p12)
 
@@ -61,7 +61,7 @@ class SriXmlData():
     def validate_password_old(self, sri_signature):
         #Se desencripta el password desde frappe para poder usarlo
         from frappe.utils.password import get_decrypted_password
-        password_p12 = get_decrypted_password('Sri Signature', sri_signature.name, "password")
+        password_p12 = get_decrypted_password('SRI Firma Electronica', sri_signature.name, "password")
 
         #print(password_p12)
         
@@ -90,8 +90,8 @@ class SriXmlData():
         
         #print(doc_object_build.name)
 
-        #sri_signature = frappe.get_all('Sri Environment', fields='*', filters={'name': doc.sri_active_environment})        
-        sri_signatures = frappe.get_all('Sri Signature', fields='*', filters={'name': doc_object_build.name})
+        #sri_signature = frappe.get_all('SRI Ambiente', fields='*', filters={'name': doc.sri_active_environment})        
+        sri_signatures = frappe.get_all('SRI Firma Electronica', fields='*', filters={'name': doc_object_build.name})
         
         #print(sri_signatures)
 
@@ -108,7 +108,7 @@ class SriXmlData():
 
         #doc_object_build = json.loads(doc, object_hook=lambda d: SimpleNamespace(**d))
         
-        sri_signatures = frappe.get_all('Sri Signature', fields='*', filters={'name': doc.name})
+        sri_signatures = frappe.get_all('SRI Firma Electronica', fields='*', filters={'name': doc.name})
         
         print(sri_signatures)
 
@@ -132,7 +132,7 @@ class SriXmlData():
 
         p12 = frappe.get_site_path() + signature_doc.p12        
         from frappe.utils.password import get_decrypted_password       
-        password = get_decrypted_password('Sri Signature', signature_doc.name, "password")
+        password = get_decrypted_password('SRI Firma Electronica', signature_doc.name, "password")
         
         dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -194,7 +194,7 @@ class SriXmlData():
         
         #doc_object_build = json.loads(signature_doc, object_hook=lambda d: SimpleNamespace(**d))
 
-        #sri_signatures = frappe.get_all('Sri Signature', fields='*', filters={'name': doc_object_build.name})
+        #sri_signatures = frappe.get_all('SRI Firma Electronica', fields='*', filters={'name': doc_object_build.name})
         
         #print(sri_signatures)        
         
@@ -203,7 +203,7 @@ class SriXmlData():
             full_path_p12 = frappe.get_site_path() + sri_signature_object.p12
             #print(full_path_p12)
             from frappe.utils.password import get_decrypted_password
-            password = get_decrypted_password('Sri Signature', sri_signature_object.name, "password")
+            password = get_decrypted_password('SRI Firma Electronica', sri_signature_object.name, "password")
             with open(full_path_p12, 'rb') as f:
                 p12 = f.read()
                 #print(pfx_data)

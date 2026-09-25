@@ -31,7 +31,7 @@ def execute():
 				  "subject": "Guía de Remisión -",
 			},
 			{
-                  "doc_type" : "Purchase Withholding Sri Ec",
+                  "doc_type" : "SRI Comprobante de Retencion",
                   "name" : "Comprobante Retencion Sri Body",
                   "module" : "Accounts",
 				  "standard": 0,

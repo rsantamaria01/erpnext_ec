@@ -24,7 +24,7 @@ def build_doc_cre(doc_name):
 	# direccionComprador = ''
 	# emailComprador = ''	
     
-	docs = frappe.get_all('Purchase Withholding Sri Ec', filters={"name": doc_name}, fields = ['*'])
+	docs = frappe.get_all('SRI Comprobante de Retencion', filters={"name": doc_name}, fields = ['*'])
 	supplier_email_id =  ''
 
 	sri_validated = 'ok';

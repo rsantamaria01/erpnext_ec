@@ -53,7 +53,7 @@ function get_current_doc_type()
     if(doctype_erpnext == 'Delivery Note')
         typeDocSri = 'GRS';
 
-    if(doctype_erpnext == 'Purchase Withholding Sri Ec')
+    if(doctype_erpnext == 'SRI Comprobante de Retencion')
         typeDocSri = 'CRE';
 
     if(doctype_erpnext == 'Purchase Receipt')
@@ -950,7 +950,7 @@ function SetSriPuntoQueries(frm)
 function ClearSriPuntoIfMismatch(frm)
 {
     if (!frm.doc.ptoemi || !frm.doc.estab) return;
-    frappe.db.get_value('Sri Ptoemi', frm.doc.ptoemi, 'sri_establishment_lnk').then(function(r) {
+    frappe.db.get_value('SRI Punto de Emision', frm.doc.ptoemi, 'sri_establishment_lnk').then(function(r) {
         if (r && r.message && r.message.sri_establishment_lnk !== frm.doc.estab) {
             frm.set_value('ptoemi', '');
         }

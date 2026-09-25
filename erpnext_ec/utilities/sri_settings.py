@@ -31,7 +31,7 @@ def firmar_xml(xml_string, settings, doc_data=None):
 	if not settings.signature:
 		frappe.throw(_("La compañía {0} no tiene firma electrónica (pestaña SRI).").format(settings.company))
 
-	firmas = frappe.get_all("Sri Signature", filters={"name": settings.signature}, fields=["*"])
+	firmas = frappe.get_all("SRI Firma Electronica", filters={"name": settings.signature}, fields=["*"])
 	if not firmas:
 		frappe.throw(_("No existe la firma electrónica {0}.").format(settings.signature))
 

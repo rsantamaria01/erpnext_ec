@@ -203,7 +203,7 @@ from frappe.utils.password import get_decrypted_password
 
 class XadesToolV4:
     def sign_xml(self, xml_string_data, doc, signature_doc):
-        password_p12 = get_decrypted_password('Sri Signature', signature_doc.name, "password")
+        password_p12 = get_decrypted_password('SRI Firma Electronica', signature_doc.name, "password")
         full_path_p12 = frappe.get_site_path() + signature_doc.p12
 
         with open(full_path_p12, "rb") as f:

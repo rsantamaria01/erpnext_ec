@@ -63,7 +63,7 @@
 		"inser_after": "sri_response",
 		"is_custom_field": 1,
 		"doctype": "Custom Field",
-		"options": "Sri Establishment",
+		"options": "SRI Establecimiento",
 		"dt": "Delivery Note"
 	},
 	{
@@ -79,7 +79,7 @@
 		"inser_after": "estab",
 		"is_custom_field": 1,
 		"doctype": "Custom Field",
-		"options": "Sri Ptoemi",
+		"options": "SRI Punto de Emision",
 		"dt": "Delivery Note"
 	},
 	{
