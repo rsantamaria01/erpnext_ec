@@ -22,7 +22,9 @@ Reglas de seguridad:
 import json
 
 import frappe
-from frappe.utils import add_to_date, now_datetime
+from datetime import datetime
+
+from frappe.utils import add_to_date, get_datetime, now_datetime
 
 CRON_POR_DEFECTO = "*/5 * * * *"
 ESPERA_MINUTOS = 3
@@ -36,26 +38,40 @@ def enviar_pendientes():
 		ajustes = get_sri_settings(compania)
 		if ajustes.simulation or not ajustes.send_auto:
 			continue
-		if not _toca_ahora(ajustes.send_cron):
+		if not _toca_ahora(compania, ajustes.send_cron):
 			continue
 
 		for factura in _pendientes(compania, ajustes.send_batch_docs):
 			_enviar(factura)
 
 
-def _toca_ahora(expresion):
+def _toca_ahora(compania, expresion):
+	"""True si desde la última corrida pasó al menos un instante del cron.
+
+	El scheduler de Frappe no corre exactamente cada minuto (en producción
+	suele hacerlo cada ~4 min), así que no se compara el minuto actual con
+	el cron: se compara la última ejecución con el instante previo del cron.
+	"""
 	from croniter import croniter
 
 	expresion = (expresion or "").strip() or CRON_POR_DEFECTO
-	ahora = now_datetime().replace(second=0, microsecond=0)
+	ahora = now_datetime()
 	try:
-		return croniter.match(expresion, ahora)
+		previo = croniter(expresion, ahora).get_prev(datetime)
 	except Exception:
 		frappe.log_error(
 			title="SRI envío automático: cron inválido",
 			message=f"'{expresion}' no es una expresión cron válida; se usa {CRON_POR_DEFECTO}",
 		)
-		return croniter.match(CRON_POR_DEFECTO, ahora)
+		previo = croniter(CRON_POR_DEFECTO, ahora).get_prev(datetime)
+
+	clave = f"sri_auto_ultima_corrida:{compania}"
+	ultima = frappe.cache.get_value(clave)
+	if ultima and get_datetime(ultima) >= previo:
+		return False
+
+	frappe.cache.set_value(clave, str(ahora))
+	return True
 
 
 def _pendientes(compania, limite):
