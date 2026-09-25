@@ -95,7 +95,7 @@
    "label": "Deshabilitado"
   },
   {
-   "description": "Secuencial inicial por tipo de comprobante",
+   "description": "Último secuencial emitido por tipo de comprobante",
    "fieldname": "column_break_10001",
    "fieldtype": "Column Break"
   },
@@ -150,7 +150,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-26 12:00:00.000000",
+ "modified": "2026-09-26 13:00:00.000000",
  "modified_by": "Administrator",
  "module": "SRI",
  "name": "SRI Punto de Emision",

@@ -97,7 +97,7 @@ def validate_sri_settings():
             #print('SIN FORMATOS')
             alerts.append({"index": 0, 
                            "description": "Formatos de Impresión no creados", 
-                           "help":"Vaya a Formatos de Impresión y haga clic en el botón 'Crear Secuencias''", 
+                           "help":"Vaya a Formatos de Impresión y use el botón para crear los formatos SRI.", 
                            "type":"error"})
             SettingsAreReady = False
         else:

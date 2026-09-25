@@ -69,6 +69,7 @@ jinja = {
 before_install = "erpnext_ec.install.before_install"
 after_install = ["erpnext_ec.install.after_install"]
 before_migrate = ["erpnext_ec.install.before_migrate"]
+after_migrate = ["erpnext_ec.install.after_migrate"]
 
 # Document Events
 # ---------------

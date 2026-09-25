@@ -35,3 +35,20 @@ def before_migrate():
 		pass
 	frappe.setup_module_map()
 	frappe.setup_module_map(include_all_apps=False)
+
+
+def after_migrate():
+	ensure_sri_tab_position()
+
+
+def ensure_sri_tab_position():
+	"""La pestaña SRI de Compañía va después de "HR & Payroll" (HRMS). Si HRMS no
+	está instalado, ese campo no existe y Frappe desordenaría la pestaña, así que
+	se ancla al final (después de "Tablero")."""
+	if not frappe.db.exists("Custom Field", "Company-sri_tab"):
+		return
+	meta = frappe.get_meta("Company")
+	ancla = "default_payroll_payable_account" if meta.has_field("default_payroll_payable_account") else "dashboard_tab"
+	if frappe.db.get_value("Custom Field", "Company-sri_tab", "insert_after") != ancla:
+		frappe.db.set_value("Custom Field", "Company-sri_tab", "insert_after", ancla)
+		frappe.clear_cache(doctype="Company")
