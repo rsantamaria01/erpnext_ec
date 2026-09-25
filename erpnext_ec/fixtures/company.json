@@ -72,11 +72,24 @@
  {
   "doctype": "Custom Field",
   "dt": "Company",
+  "name": "Company-sri_num_establecimientos",
+  "fieldname": "sri_num_establecimientos",
+  "fieldtype": "Int",
+  "label": "Establecimientos en el RUC",
+  "insert_after": "agenteretencion",
+  "default": "1",
+  "non_negative": 1,
+  "description": "Número de establecimientos abiertos según el certificado del RUC. Al guardar se crean 001..N, cada uno con un punto de pruebas (000, DES) y uno de producción (001, PRO); los que sobren se deshabilitan.",
+  "is_custom_field": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "dt": "Company",
   "name": "Company-sri_contribuyente_cb",
   "fieldname": "sri_contribuyente_cb",
   "fieldtype": "Column Break",
   "label": "",
-  "insert_after": "agenteretencion",
+  "insert_after": "sri_num_establecimientos",
   "is_custom_field": 1
  },
  {

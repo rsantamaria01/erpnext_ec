@@ -81,7 +81,10 @@ doc_events = {
 		"validate": "erpnext_ec.sri.doctype.sri_respuestas_xml.events.validate",
 		"on_update": "erpnext_ec.sri.doctype.sri_respuestas_xml.events.on_update",
 		"after_insert": "erpnext_ec.sri.doctype.sri_respuestas_xml.events.after_insert",
-	}
+	},
+	"Company": {
+		"on_update": "erpnext_ec.utilities.sri_establecimientos.on_company_update",
+	},
 }
 
 # Envío automático al SRI: corre cada minuto y decide según el cron de

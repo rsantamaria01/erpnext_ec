@@ -226,12 +226,15 @@ def get_full_company_sri(def_company):
         return compania_sri
     
 
-def get_ptoemi_sri(doc):
+def get_ptoemi_sri(doc, emitir=False):
     """Punto de emisión del documento, validado contra su establecimiento y compañía.
 
     El punto de emisión es la única fuente del ambiente SRI (DES/PRO) del documento.
     doc.ptoemi / doc.estab son nombres de Link (PTO-00001 / EST-00001); para el
     establecimiento se acepta también el código SRI (001) por compatibilidad.
+    emitir=True (al asignar un secuencial nuevo) exige que el punto y el
+    establecimiento estén activos; para reimprimir o reenviar documentos ya
+    numerados no importa que luego se hayan deshabilitado.
     """
     if not doc.get('ptoemi'):
         frappe.throw(_("No se ha definido el punto de emisión (ptoEmi). Configure los datos SRI para emitir el comprobante electrónico."))
@@ -241,7 +244,7 @@ def get_ptoemi_sri(doc):
         as_dict=True)
     if not pto:
         frappe.throw(_("No existe el punto de emisión {0}.").format(doc.ptoemi))
-    if pto.disabled:
+    if emitir and pto.disabled:
         frappe.throw(_("El punto de emisión {0} ({1}) está deshabilitado.").format(pto.name, pto.record_name))
 
     estab = frappe.db.get_value('SRI Establecimiento', pto.sri_establishment_lnk,
@@ -253,7 +256,7 @@ def get_ptoemi_sri(doc):
             pto.name, pto.record_name, doc.estab))
     if estab.company_link and doc.get('company') and estab.company_link != doc.company:
         frappe.throw(_("El establecimiento {0} no pertenece a la compañía {1}.").format(estab.name, doc.company))
-    if estab.disabled:
+    if emitir and estab.disabled:
         frappe.throw(_("El establecimiento {0} ({1}) está deshabilitado.").format(estab.name, estab.record_name))
 
     ambiente = frappe.utils.cint(frappe.db.get_value('SRI Ambiente', pto.sri_environment_lnk, 'id'))
@@ -1048,7 +1051,7 @@ def setSecuencial(doc, typeDocSri):
     # El documento apunta directamente a su punto de emisión (PTO-00001); ese
     # registro define el ambiente y lleva los contadores. Ya no hay "gemelos"
     # DES/PRO por código.
-    pto = get_ptoemi_sri(doc)
+    pto = get_ptoemi_sri(doc, emitir=True)
     ptoemi_name = pto.name
 
     seq_field = {

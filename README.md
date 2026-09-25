@@ -11,8 +11,8 @@ Todo está en el workspace **SRI**, que es el único del app. Al abrirlo, el blo
 | Dónde | Qué se configura |
 |---|---|
 | **Compañía → pestaña SRI** | Datos del contribuyente (nombre comercial, RIMPE, contabilidad, agente de retención, gran contribuyente, RUC proveedor), firma electrónica, timeout, modo simulación, envío automático (lote y cron), correo por defecto para clientes sin correo, y formatos/plantillas del RIDE. |
-| **SRI Establecimiento** | Establecimientos registrados en el RUC (código de 3 dígitos). Se pueden **deshabilitar** en lugar de borrarlos. |
-| **SRI Punto de Emisión** | Puntos de emisión de cada establecimiento, con sus secuenciales. **El punto define el ambiente del documento**: `DES` (pruebas, celcer) o `PRO` (producción). Se pueden deshabilitar. |
+| **Establecimientos en el RUC** (pestaña SRI) | Cuántos establecimientos abiertos tiene el RUC según el certificado del SRI. Al guardar, el app mantiene los establecimientos 001..N y, en cada uno, dos puntos de emisión por defecto: **000 (DES, pruebas)** y **001 (PRO, producción)**. Si el número baja, lo que sobra se **deshabilita** (no se borra). El botón *Sincronizar con el RUC* de la lista de establecimientos hace lo mismo. |
+| **SRI Punto de Emisión** | Secuenciales de cada punto. **El punto define el ambiente del documento**: `DES` (pruebas, celcer) o `PRO` (producción). Se pueden agregar más puntos PRO a mano (002, 003…). Un punto deshabilitado no numera documentos nuevos, pero sus documentos anteriores se pueden reimprimir y reenviar. |
 | **SRI Firma Electrónica** | Archivo `.p12` y su contraseña. |
 
 #### Ambiente por punto de emisión
