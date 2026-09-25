@@ -79,7 +79,7 @@
   "insert_after": "agenteretencion",
   "default": "1",
   "non_negative": 1,
-  "description": "Número de establecimientos abiertos según el certificado del RUC. Al guardar se crean 001..N, cada uno con un punto de pruebas (000, DES) y uno de producción (001, PRO); los que sobren se deshabilitan.",
+  "description": "Número de establecimientos abiertos según el certificado del RUC. Al guardar se mantienen 001..N, cada uno con un punto de pruebas (000, DES) y uno de producción (001, PRO). Lo que sobra se borra (o se deshabilita si ya tiene documentos).",
   "is_custom_field": 1
  },
  {

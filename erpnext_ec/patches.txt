@@ -17,3 +17,4 @@ erpnext_ec.patches.v16_0.sri_workspace_unico
 erpnext_ec.patches.v16_0.sri_nota_debito
 erpnext_ec.patches.v16_0.sri_solo_firma_python
 erpnext_ec.patches.v16_0.sri_establecimientos_por_ruc
+erpnext_ec.patches.v16_0.sri_limpiar_establecimientos

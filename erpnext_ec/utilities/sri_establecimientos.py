@@ -5,8 +5,9 @@
 # del SRI). Con ese número se mantienen los establecimientos 001..N y, en cada
 # uno, dos puntos de emisión por defecto:
 #   000 -> ambiente DES (pruebas)     001 -> ambiente PRO (producción)
-# Se pueden agregar más puntos PRO a mano (002, 003, ...). Nada se borra: lo que
-# sobra se deshabilita.
+# Se pueden agregar más puntos PRO a mano (002, 003, ...).
+# Lo que sobra (establecimientos fuera del RUC, puntos DES que no son 000) se
+# borra; solo si ya tiene documentos se deshabilita (no se puede borrar).
 
 import frappe
 from frappe import _
@@ -66,14 +67,17 @@ def sincronizar_establecimientos(company, mostrar=False):
 
 	for e in establecimientos:
 		codigo = (e.record_name or "").strip()
-		if e.disabled or not codigo.isdigit() or int(codigo) <= n:
+		if codigo.isdigit() and int(codigo) <= n:
 			continue
-		_set(frappe.get_doc("SRI Establecimiento", e.name), disabled=1)
-		cambios.append(_("Establecimiento {0} deshabilitado (no está en el RUC)").format(codigo))
 		for pto in frappe.get_all(
-			"SRI Punto de Emision", filters={"sri_establishment_lnk": e.name, "disabled": 0}, pluck="name"
+			"SRI Punto de Emision", filters={"sri_establishment_lnk": e.name}, fields=["name", "record_name"]
 		):
-			_set(frappe.get_doc("SRI Punto de Emision", pto), disabled=1)
+			r = _borrar_o_deshabilitar("SRI Punto de Emision", pto.name)
+			if r:
+				cambios.append(_("Punto {0}-{1} {2}").format(codigo, pto.record_name, r))
+		r = _borrar_o_deshabilitar("SRI Establecimiento", e.name)
+		if r:
+			cambios.append(_("Establecimiento {0} {1} (no está en el RUC)").format(codigo, r))
 
 	if mostrar and cambios:
 		frappe.msgprint("<br>".join(cambios), title=_("Establecimientos SRI"), indicator="green")
@@ -89,12 +93,14 @@ def _asegurar_puntos(company, establecimiento, codigo_est):
 		order_by="creation asc",
 	)
 
-	# DES: un único punto de pruebas, con código 000
+	# DES: un único punto de pruebas, con código 000. Los demás DES se borran
+	# (o se deshabilitan si ya numeraron documentos).
 	for p in puntos:
-		if p.sri_environment_lnk == "DES" and not p.disabled and p.record_name != PUNTO_DES:
-			_set(frappe.get_doc("SRI Punto de Emision", p.name), disabled=1)
+		if p.sri_environment_lnk == "DES" and p.record_name != PUNTO_DES:
+			r = _borrar_o_deshabilitar("SRI Punto de Emision", p.name)
+			if r:
+				cambios.append(_("Punto {0}-{1} (DES) {2}; pruebas usa {0}-{3}").format(codigo_est, p.record_name, r, PUNTO_DES))
 			p.disabled = 1
-			cambios.append(_("Punto {0}-{1} (DES) deshabilitado; pruebas usa {0}-{2}").format(codigo_est, p.record_name, PUNTO_DES))
 
 	cambios += _asegurar_punto(company, establecimiento, codigo_est, puntos, PUNTO_DES, "DES")
 	cambios += _asegurar_punto(company, establecimiento, codigo_est, puntos, PUNTO_PRO, "PRO")
@@ -145,6 +151,21 @@ def _correo_pruebas(company):
 			_("Para crear el punto de pruebas (DES) configure 'Correo por defecto' en Compañía → SRI.")
 		)
 	return correo
+
+
+def _borrar_o_deshabilitar(doctype, name):
+	"""Borra el registro; si ya tiene documentos enlazados, lo deshabilita.
+	Devuelve "borrado", "deshabilitado" o None (ya estaba deshabilitado)."""
+	try:
+		frappe.delete_doc(doctype, name, ignore_permissions=True, delete_permanently=False)
+		return _("borrado")
+	except (frappe.LinkExistsError, frappe.ValidationError):
+		frappe.clear_messages()
+		doc = frappe.get_doc(doctype, name)
+		if doc.disabled:
+			return None
+		_set(doc, disabled=1)
+		return _("deshabilitado (tiene documentos)")
 
 
 def _set(doc, **valores):
