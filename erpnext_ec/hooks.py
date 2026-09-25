@@ -68,6 +68,7 @@ jinja = {
 
 before_install = "erpnext_ec.install.before_install"
 after_install = ["erpnext_ec.install.after_install"]
+before_migrate = ["erpnext_ec.install.before_migrate"]
 
 # Document Events
 # ---------------
@@ -75,9 +76,9 @@ after_install = ["erpnext_ec.install.after_install"]
 
 doc_events = {
 	"Xml Responses": {
-		"validate": "erpnext_ec.erpnext_ec.doctype.xml_responses.events.validate",
-		"on_update": "erpnext_ec.erpnext_ec.doctype.xml_responses.events.on_update",
-		"after_insert": "erpnext_ec.erpnext_ec.doctype.xml_responses.events.after_insert",
+		"validate": "erpnext_ec.sri.doctype.xml_responses.events.validate",
+		"on_update": "erpnext_ec.sri.doctype.xml_responses.events.on_update",
+		"after_insert": "erpnext_ec.sri.doctype.xml_responses.events.after_insert",
 	}
 }
 

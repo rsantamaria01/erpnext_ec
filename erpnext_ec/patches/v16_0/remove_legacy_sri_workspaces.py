@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Patch ERPNext v16 - Elimina los workspaces legacy "ERPNext Ec" y el duplicado
 # "Sri", junto con su Workspace Sidebar y Desktop Icon. El unico workspace
-# canonico pasa a ser "SRI" (definido en erpnext_ec/erpnext_ec/workspace/sri/sri.json).
+# canonico pasa a ser "SRI" (definido en erpnext_ec/sri/workspace/sri/sri.json).
 #
 # Se ejecuta como pre_model_sync para eliminar los registros ANTES de que
 # frappe.model.sync cree el workspace "SRI". La colacion de la base de datos es

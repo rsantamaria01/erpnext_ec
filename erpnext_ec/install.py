@@ -19,3 +19,19 @@ def after_install():
 			fg="bright_red",
 		)
 		raise e
+
+
+def before_migrate():
+	"""Descarta el mapa de módulos en caché antes de migrar.
+
+	Frappe guarda en Redis la lista de módulos de cada app (modules.txt). Si el
+	fork cambia sus módulos (p. ej. "Erpnext Ec"/"Erpnext Sri" -> "SRI"), el
+	migrate leería la lista vieja y fallaría al buscar carpetas que ya no existen.
+	"""
+	frappe.cache.delete_value("app_modules")
+	try:
+		frappe.client_cache.delete_value("installed_app_modules")
+	except Exception:
+		pass
+	frappe.setup_module_map()
+	frappe.setup_module_map(include_all_apps=False)

@@ -1,0 +1,90 @@
+{
+ "app": "erpnext_ec",
+ "charts": [],
+ "content": "[{\"id\": \"sri-estado\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Estado SRI\", \"col\": 12}}, {\"id\": \"sri-h-conf\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Configuración</b></span>\", \"col\": 12}}, {\"id\": \"sri-sc-1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Configuración SRI\", \"col\": 3}}, {\"id\": \"sri-sc-2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Punto de Emisión\", \"col\": 3}}, {\"id\": \"sri-sc-3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Establecimiento\", \"col\": 3}}, {\"id\": \"sri-sc-4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Firmas Electrónicas\", \"col\": 3}}, {\"id\": \"sri-h-docs\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Comprobantes</b></span>\", \"col\": 12}}, {\"id\": \"sri-sc-5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Retenciones\", \"col\": 3}}, {\"id\": \"sri-sc-6\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Respuestas XML\", \"col\": 3}}, {\"id\": \"sri-h-cat\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Catálogos</b></span>\", \"col\": 12}}, {\"id\": \"sri-sc-7\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Ambientes\", \"col\": 3}}, {\"id\": \"sri-sc-8\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Tipos de Comprobante\", \"col\": 3}}, {\"id\": \"sri-sc-9\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Tipos de Identificación\", \"col\": 3}}]",
+ "creation": "2026-09-11 00:00:00.000000",
+ "custom_blocks": [
+  {
+   "custom_block_name": "Estado SRI",
+   "label": "Estado SRI"
+  }
+ ],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "project",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "SRI",
+ "links": [],
+ "modified": "2026-09-26 11:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "SRI",
+ "name": "SRI",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 10.0,
+ "shortcuts": [
+  {
+   "label": "Configuración SRI",
+   "link_to": "Company",
+   "type": "DocType",
+   "doc_view": ""
+  },
+  {
+   "label": "Punto de Emisión",
+   "link_to": "Sri Ptoemi",
+   "type": "DocType",
+   "doc_view": "List"
+  },
+  {
+   "label": "Establecimiento",
+   "link_to": "Sri Establishment",
+   "type": "DocType",
+   "doc_view": "List"
+  },
+  {
+   "label": "Firmas Electrónicas",
+   "link_to": "Sri Signature",
+   "type": "DocType",
+   "doc_view": "List"
+  },
+  {
+   "label": "Retenciones",
+   "link_to": "Purchase Withholding Sri Ec",
+   "type": "DocType",
+   "doc_view": "List"
+  },
+  {
+   "label": "Respuestas XML",
+   "link_to": "Xml Responses",
+   "type": "DocType",
+   "doc_view": "List"
+  },
+  {
+   "label": "Ambientes",
+   "link_to": "Sri Environment",
+   "type": "DocType",
+   "doc_view": "List"
+  },
+  {
+   "label": "Tipos de Comprobante",
+   "link_to": "Sri Type Doc",
+   "type": "DocType",
+   "doc_view": "List"
+  },
+  {
+   "label": "Tipos de Identificación",
+   "link_to": "Sri Type Id",
+   "type": "DocType",
+   "doc_view": "List"
+  }
+ ],
+ "title": "SRI",
+ "type": "Workspace"
+}
