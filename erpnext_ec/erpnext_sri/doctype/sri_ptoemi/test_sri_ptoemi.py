@@ -1,4 +1,3 @@
-# Copyright (c) 2024, BeebTech and Contributors
 # See license.txt
 
 # import frappe

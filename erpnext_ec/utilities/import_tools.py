@@ -203,7 +203,6 @@ def evaluate_taxes(create_if_not_exists, codigo, codigoPorcentaje, tarifa):
               
 
     #Crear
-    #company : "RONALD STALIN CHONILLO VILLON"
     #name : "Ecuador Tax 15% (Compra) - RSCV"
 
 @frappe.whitelist()

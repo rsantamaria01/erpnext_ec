@@ -226,7 +226,6 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 
 	print("recipients final:")
 	print(recipients)
-	#var url = `${btApiServer}/api/Tool/AddToEmailQuote/${doc}?tip_doc=FAC&sitename=${sitenameVar}&email_to=${values.email_to}`;
 	sendmail(doc_data, recipients, email_subject, msg_template, attachments)	        
 	pass
 
@@ -291,7 +290,6 @@ def download_pdf(doc_name, typeDocSri, typeFile, siteName):
 @frappe.whitelist()
 def get_info_doc(doc_name, typeDocSri, doctype_erpnext, siteName):
 	#print(doc_name, typeDocSri, doctype_erpnext, siteName)
-	#var url = `${btApiServer}/api/SriProcess/getresponses/${doc}?tip_doc=${tip_doc}&sitename=${sitenamePar}`;
 	#xml_responses = frappe.get_list(doctype='Xml Responses', fields='*')
 	info_doc = {}
 	xml_responses = get_responses(doc_name, typeDocSri, doctype_erpnext, siteName)
@@ -313,7 +311,6 @@ def get_info_doc(doc_name, typeDocSri, doctype_erpnext, siteName):
 @frappe.whitelist()
 def get_responses(doc_name, typeDocSri, doctype_erpnext, siteName):
 	#print(doc)
-	#var url = `${btApiServer}/api/SriProcess/getresponses/${doc}?tip_doc=${tip_doc}&sitename=${sitenamePar}`;
 	#xml_responses = frappe.get_list(doctype='Xml Responses', fields='*')
 	xml_responses = frappe.get_all('Xml Responses', filters={'doc_ref': doc_name, 'tip_doc': typeDocSri }, fields=['*'], order_by='creation')
 	#print(xml_responses)
@@ -1043,39 +1040,6 @@ def updateStatusDocument_native(doc, typeDocSri, response_json):
 				fechaAutorizacion = fecha_con_zona.replace(tzinfo=None)
 
 				document_object.db_set('fechaautorizacion', fechaAutorizacion)
-
-
-@frappe.whitelist()
-def limpiar_rastros_proveedor():
-	"""Quita de los Print Format y Email Template guardados en la base el pie
-	'Powered by beebtech.net' que traían las plantillas originales de erpnext_ec.
-	Las fuentes en public/jinja ya están limpias; esto sincroniza la base.
-	Solo System Manager. Idempotente."""
-	import re
-	frappe.only_for("System Manager")
-
-	patron = re.compile(
-		r'\s*<div class="page-footer" style="display:none;">\s*'
-		r'<div style="margin-top:10px">Powered by <a href="https://beebtech\.net/"[^>]*>https://beebtech\.net</a></div>\s*'
-		r'</div>', re.I)
-
-	resultado = {"print_format": [], "email_template": [], "pendientes": []}
-
-	for pf in frappe.get_all("Print Format", filters={"html": ["like", "%beebtech%"]}, pluck="name"):
-		doc = frappe.get_doc("Print Format", pf)
-		nuevo = patron.sub("", doc.html or "")
-		if nuevo != doc.html:
-			doc.html = nuevo
-			doc.save(ignore_permissions=True)
-			resultado["print_format"].append(pf)
-		if "beebtech" in (doc.html or "").lower():
-			resultado["pendientes"].append(pf)
-
-	for et in frappe.get_all("Email Template", filters={"response_html": ["like", "%beebtech%"]}, pluck="name"):
-		resultado["pendientes"].append(et)
-
-	frappe.db.commit()
-	return resultado
 
 
 @frappe.whitelist()

@@ -37,7 +37,6 @@ class SriXmlData():
         #print(password_p12)
 
         #print(sri_signature.password)
-        #password_p12 = 'beebtech2022CB'
         #password_p12 = sri_signature.password
         
         #full_path_p12 = '/opt/bench/frappe-bench/sites/principal/' + sri_signature.p12

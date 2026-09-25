@@ -183,7 +183,7 @@ const Website = {
             });
 
 
-        /*var url = `${btApiServer}/api/SriProcess/getresponses/${doc}?tip_doc=${tip_doc}&sitename=${sitenamePar}`;
+        /*
         return new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
@@ -625,7 +625,6 @@ const Website = {
 
                 //show_alert with indicator
                 var sitenameVar = frappe.boot.sitename;
-                //var url = `${btApiServer}/api/Tool/AddToEmailQuote/${doc}?tip_doc=FAC&sitename=${sitenameVar}&email_to=${values.email_to}`;
                 var url = `/api/method/erpnext_ec.utilities.sri_ws.add_email_quote`;
                 var req = new XMLHttpRequest();
                 req.open("POST", url, true);
@@ -709,132 +708,11 @@ const Website = {
 
         d.show();
     },
-    DownloadFileBlob(doc, typeFile, siteName, typeDocSri, btnProcess)
-    {
-        //var url = `${btApiServer}/api/Download/${typeFile}/${doc}?tip_doc=FAC&sitename=${sitename}`;
-        var url = `/api/method/erpnext_ec.utilities.sri_ws.get_doc_blob`;
-        
-        var req = new XMLHttpRequest();
-        req.open("POST", url, true);
-        req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        req.setRequestHeader("X-Frappe-CSRF-Token", frappe.csrf_token);
-
-        req.responseType = "blob";
-        /*
-        req.loadend = function (event) {
-            console.log('Terminado');
-            $(btnProcess).show();
-            $(btnProcess).parent().find('.custom-animation').remove();
-        };
-        */
-        req.onreadystatechange = function (aEvt) {
-            if (req.readyState == 4) 
-            {
-               if(req.status == 200)
-                {
-                    //console.log(req);
-                    //console.log(req.length);
-
-                    var fileNameForDownload = doc + `.${typeFile}`;
-                    var disposition = req.getResponseHeader('Content-Disposition');
-                    //console.log(disposition);
-
-                    if (disposition && disposition.indexOf('attachment') !== -1) {
-                        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                        var matches = filenameRegex.exec(disposition);
-                        if (matches != null && matches[1]) {
-                            fileNameForDownload = matches[1].replace(/['"]/g, '');
-                        }
-                    }
-
-                    var blob = req.response;
-                    //var fileName = req.getResponseHeader("fileName") //if you have the fileName header available
-                    
-                    var link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = fileNameForDownload;
-                    link.click();
-
-                    frappe.show_alert({                        
-                        message: __(`Documento ${typeFile} ${doc} descargado.`),
-                        indicator: 'green'
-                    }, 5);
-                }
-                else
-                {
-                    frappe.show_alert({                    
-                        message: __(`Error al procesar descarga del documento ${doc}:`),
-                        indicator: 'red'
-                    }, 5);
-                }
-
-                $(btnProcess).show();
-                $(btnProcess).parent().find('.custom-animation').remove();     
-            }
-          };
-
-        // req.onload = function (event) {
-            
-        //     console.log(req);
-        //     console.log(req.length);
-
-        //     var fileNameForDownload = doc + `.${typeFile}`;
-        //     var disposition = req.getResponseHeader('Content-Disposition');
-        //     //console.log(disposition);
-
-        //     if (disposition && disposition.indexOf('attachment') !== -1) {
-        //         var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        //         var matches = filenameRegex.exec(disposition);
-        //         if (matches != null && matches[1]) {
-        //             fileNameForDownload = matches[1].replace(/['"]/g, '');
-        //         }
-        //     }
-
-        //     var blob = req.response;
-        //     //var fileName = req.getResponseHeader("fileName") //if you have the fileName header available
-            
-        //     var link = document.createElement('a');
-        //     link.href = window.URL.createObjectURL(blob);
-        //     link.download = fileNameForDownload;
-        //     link.click();
-
-            
-        // };
-
-        var datos = "doc_name=" + encodeURIComponent(doc) +
-                "&typeDocSri=" + encodeURIComponent(typeDocSri) +
-                "&typeFile=" + encodeURIComponent(typeFile) +
-                "&siteName=" + encodeURIComponent(siteName);
-
-        req.send(datos);
-    },
     DownloadFile(doc, typeFile, siteName, doctype_erpnext)
     {
-        typeDocSri = '-';
-
-        if(doctype_erpnext == 'Sales Invoice')
-            typeDocSri = 'FAC';
-
-        if(doctype_erpnext == 'Delivery Note')
-            typeDocSri = 'GRS';
-
-        if(doctype_erpnext == 'Purchase Withholding Sri Ec')
-            typeDocSri = 'CRE';
-        
-        console.log(doc);
-        console.log(typeDocSri);
-        console.log(typeFile);
-        console.log(siteName);
-        
-        var btnProcess = $('div.dropdown[data-name="' + doc + '"]');
-        //Oculta el botón
-        $(btnProcess).hide();
-        //Muestra animación de carga
-        $(btnProcess).after(document.Website.loadingAnimation);
-
-        document.Website.DownloadFileBlob(doc, typeFile, siteName, typeDocSri, btnProcess);
-
-    },        
+        // Descarga local (XML, XML firmado o PDF) generada por el propio ERPNext
+        document.Website.DownloadFile_v2(doc, typeFile);
+    },
     DownloadXml(doc) {
         //console.log(doc);
         var doctype_erpnext = get_current_doc_type()[0];
@@ -883,7 +761,6 @@ const Website = {
                 }
             }
 
-        //var url = `${btApiServer}/api/Download/${typeFile}/${doc}?tip_doc=FAC&sitename=${sitename}`;
         //var url = `/api/method/erpnext_ec.utilities.sri_ws.get_doc_blob`;
         var url = `/api/method/erpnext_ec.utilities.xml_builder.build_xml`;
 
@@ -983,7 +860,6 @@ const Website = {
 
         //DownloadFileBlob(doc, typeFile, siteName, typeDocSri, btnProcess)
     
-        //var url = `${btApiServer}/api/Download/${typeFile}/${doc}?tip_doc=FAC&sitename=${sitename}`;
         //var url = `/api/method/erpnext_ec.utilities.sri_ws.get_doc_blob`;
         var url = `/api/method/erpnext_ec.utilities.xml_builder.build_xml`;
         

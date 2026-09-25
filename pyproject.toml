@@ -1,7 +1,7 @@
 [project]
 name = "erpnext_ec"
 authors = [
-    { name = "BeebTech", email = "ronald.chonillo@gmail.com" }
+    { name = "Raúl Santamaría", email = "raulsantamariaobando@gmail.com" }
 ]
 description = "ERPNext Ecuador - Localización ecuatoriana SRI"
 requires-python = ">=3.12,<3.15"
@@ -18,8 +18,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ocazo/erpnext_ec"
-Repository = "https://github.com/ocazo/erpnext_ec"
+Homepage = "https://github.com/rsantamaria01/erpnext_ec"
+Repository = "https://github.com/rsantamaria01/erpnext_ec"
 
 [tool.setuptools]
 packages = { find = { where = ["."], include = ["erpnext_ec*"] } }

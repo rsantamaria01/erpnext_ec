@@ -52,7 +52,7 @@ def execute():
 		):
 			frappe.delete_doc("Custom Field", name, force=True, ignore_permissions=True)
 
-	# Usuario y contraseña del servicio externo (Beebtech) guardados en Regional Settings Ec
+	# Usuario y contraseña del antiguo servicio externo guardados en Regional Settings Ec
 	frappe.db.delete("__Auth", {"doctype": "Regional Settings Ec"})
 	if frappe.db.table_exists("Regional Settings Ec"):
 		frappe.db.sql("delete from `tabRegional Settings Ec`")

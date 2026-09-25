@@ -1,8 +1,8 @@
 app_name = "erpnext_ec"
 app_title = "ERPNext Ec"
-app_publisher = "BeebTech"
+app_publisher = "Raúl Santamaría"
 app_description = "ERPNext Ecuador - Localización ecuatoriana SRI"
-app_email = "ronald.chonillo@gmail.com"
+app_email = "raulsantamariaobando@gmail.com"
 app_license = "mit"
 required_apps = [
 	"erpnext"
