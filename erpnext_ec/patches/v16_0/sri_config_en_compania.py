@@ -54,8 +54,8 @@ def execute():
 
 	# Usuario y contraseña del antiguo servicio externo guardados en Regional Settings Ec
 	frappe.db.delete("__Auth", {"doctype": "Regional Settings Ec"})
-	if frappe.db.table_exists("Regional Settings Ec"):
-		frappe.db.sql("delete from `tabRegional Settings Ec`")
+	# El migrate borra el DocType huérfano pero no su tabla
+	frappe.db.sql_ddl("drop table if exists `tabRegional Settings Ec`")
 
 	frappe.clear_cache(doctype="Company")
 	frappe.db.commit()

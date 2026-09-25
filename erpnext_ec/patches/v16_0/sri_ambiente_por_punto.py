@@ -34,4 +34,6 @@ def execute():
 				frappe.db.set_value("SRI Punto de Emision", pto.name, "test_dev_email", correo, update_modified=False)
 
 	frappe.db.delete("Workspace Sidebar Item", {"link_type": "DocType", "link_to": "Sri Sequence"})
+	# El migrate borra el DocType huérfano "Sri Sequence" pero no su tabla (12 registros en 0)
+	frappe.db.sql_ddl("drop table if exists `tabSri Sequence`")
 	frappe.db.commit()

@@ -13,6 +13,11 @@ class SRIPuntodeEmision(Document):
 
 		if self.sri_environment_lnk != "DES":
 			self.test_dev_email = None
+		elif not self.test_dev_email and not self.disabled:
+			frappe.throw(
+				_("Un punto de emisión de pruebas (DES) necesita 'Test Dev Environment Email': "
+				  "sus documentos solo se envían a ese correo.")
+			)
 
 		if not self.disabled:
 			duplicado = frappe.db.exists(
