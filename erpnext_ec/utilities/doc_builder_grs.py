@@ -65,7 +65,7 @@ def build_doc_grs(doc_name):
 		doc.tipoIdentificacionComprador = customer_full['tipoIdentificacionComprador']
 		doc.direccionComprador = customer_full['direccionComprador']
 		customer_phone = customer_full['customer_phone']
-		customer_email_id = customer_full['customer_email_id']
+		customer_email_id = customer_full['customer_email_id'] or company_full.get('defaultEmail') or ''
 
 		doc.infoAdicional = build_infoAdicional_sri(doc_name, customer_email_id, customer_phone)
 

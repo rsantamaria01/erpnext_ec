@@ -16,6 +16,7 @@ from types import SimpleNamespace
 import requests
 #from erpnext_ec.utilities.encryption import *
 from erpnext_ec.utilities.signature_tool import *
+from erpnext_ec.utilities.sri_settings import get_sri_settings, firmar_xml
 from erpnext_ec.utilities.xml_builder import *
 from erpnext_ec.utilities.xades_tool_v4 import *
 
@@ -318,29 +319,6 @@ def get_responses(doc_name, typeDocSri, doctype_erpnext, siteName):
 	#print(xml_responses)
 	return xml_responses
 
-def get_api_url():
-	settings_ec = frappe.get_list(doctype='Regional Settings Ec', fields='*')
-	#print(settings_ec)
-	
-	url_server_beebtech = '';
-
-	if settings_ec:
-		
-		url_server_beebtech = settings_ec[0].url_server_beebtech
-		server_timeout = settings_ec[0].server_timeout
-
-		if(settings_ec[0].use_external_service):
-			pass
-		
-		if(server_timeout == 0):
-			server_timeout = 10
-		return url_server_beebtech, server_timeout
-	
-	raise ReferenceError("No se encontró configuración requerida 'Regional Settings Ec' url_server_beebtech")
-	#raise TypeError("El objeto de tipo %s no es serializable JSON." % type(obj).__name__)
-	#return ""
-
-
 @frappe.whitelist()
 def get_doc_json(doc_name, typeDocSri, typeFile, siteName):
 
@@ -375,99 +353,6 @@ def get_doc_json(doc_name, typeDocSri, typeFile, siteName):
 	return doc
 
 
-@frappe.whitelist()
-def get_doc_blob(doc_name, typeDocSri, typeFile, siteName):
-
-	#print(doc_name, typeDocSri, typeFile, siteName)
-	#El parametro doc aquí es el nombre del documento
-      
-	if typeDocSri == "FAC":
-			doc = build_doc_fac(doc_name)
-			print ("")
-	elif typeDocSri == "GRS":
-			doc = build_doc_grs(doc_name)
-	elif typeDocSri == "CRE":
-			doc = build_doc_cre(doc_name)
-			print(doc)
-	elif typeDocSri == "NCR":
-			doc = build_doc_ncr(doc_name)
-			print(doc)
-	
-	if doc:		
-		doc_str = json.dumps(doc, default=str) 
-
-		headers = {}
-		
-		url_server_beebtech, server_timeout = get_api_url()
-		
-		#print(url_server_beebtech)
-		#print(server_timeout)
-
-		api_url = f"{url_server_beebtech}/Download/{typeFile}?documentName={doc_name}&tip_doc={typeDocSri}&sitename={siteName}"	
-		
-		response = requests.post(api_url, data=doc_str, verify=False, stream=True, headers= headers, timeout=server_timeout)
-		response.raise_for_status()
-
-		#print(response.status_code)
-
-		if (response.status_code == 200):
-			#test signature
-			#response.content
-			
-			frappe.local.response.filename = doc_name + "." + typeFile
-			frappe.local.response.filecontent = response.content
-			frappe.local.response.type = "download"
-		else:
-			#print("Error pos!")
-			raise SystemError("No se pudo descargar archivo." + doc_name)
-
-	#return ""
-
-@frappe.whitelist()
-def get_doc(doc_name, typeDocSri, typeFile, siteName):
-
-	print(doc_name, typeDocSri, typeFile, siteName)
-
-	#El parametro doc aquí es el nombre del documento
-      
-	if typeDocSri == "FAC":
-			doc = build_doc_fac(doc_name)
-			print ("")
-	elif typeDocSri == "GRS":
-			doc = build_doc_grs(doc_name)
-	elif typeDocSri == "CRE":
-			doc = build_doc_cre(doc_name)
-			print(doc)
-	
-	if doc:		
-		doc_str = json.dumps(doc, default=str) 
-
-		#print ("NODYYYYYYYY")
-		#print (doc)
-		#print (doc_str)
-
-		headers = {}
-		
-		url_server_beebtech, server_timeout = get_api_url()
-		#url_server_beebtech = "https://192.168.200.9:7037/api/v2"
-		print(url_server_beebtech)
-		print(server_timeout)
-
-		api_url = f"{url_server_beebtech}/Download/{typeFile}?documentName={doc_name}&tip_doc={typeDocSri}&sitename={siteName}"	
-		#response = requests.post(api_url, json=doc_str, verify=False, stream=True, headers= headers)
-		response = requests.post(api_url, data=doc_str, verify=False, stream=True, headers= headers, timeout=server_timeout)
-
-		#print(response.headers['Content-Type'])
-		#print(response.text)
-		print(response)
-		return response.text
-		#frappe.local.response.filename = "nombre_del_archivo.pdf"
-		#frappe.local.response.filecontent = response.content
-		#frappe.local.response.type = "download"
-
-	return ""
-
-
 def handler(obj):
     
 	if isinstance(obj, datetime):
@@ -498,155 +383,6 @@ def validate_doc(doc, typeDocSri, doctype_erpnext, siteName):
 	print(doc.tipoIdentificacionComprador)
 	
 	raise ValueError("Error de validación %s" % type(doc).__name__)
-
-@frappe.whitelist()
-def send_doc_external(doc, typeDocSri, doctype_erpnext, siteName):	
-	
-	doc_data = None
-
-	# for doctype, min_count in doctypes.items():
-	# 	count = frappe.db.count(doctype)
-	# 	if count > min_count:
-	# 		activation_level += 1
-	# 	sales_data.append({doctype: count})
-
-	# if frappe.db.get_single_value("System Settings", "setup_complete"):
-	# 	activation_level += 1
-
-	# communication_number = frappe.db.count("Communication", dict(communication_medium="Email"))
-	# if communication_number > 10:
-	# 	activation_level += 1
-	# sales_data.append({"Communication": communication_number})
-
-	# # recent login
-	# if frappe.db.sql(
-	# 	"select name from tabUser where last_login > date_sub(now(), interval 2 day) limit 1"
-	# ):
-	# 	activation_level += 1
-
-	# level = {"activation_level": activation_level, "sales_data": sales_data}
-	
-	#print(doc.company)
-
-	#	SE OMITE ESTE PASO
-	doc_object_build = json.loads(doc, object_hook=lambda d: SimpleNamespace(**d))
-	#print("DESDE OBJETO")
-	#print(doc_object_build.name)
-	#print(typeDocSri)
-	#   ----------------
-
-	level = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-	#time.sleep(5)
-	level += '   RESPUESTA SRI   ' # + doc.name
-	level += datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-
-	#Si se asigna correctamente el secuencial
-	#if setSecuencial(doc_object_build, typeDocSri):
-		#Hacer algo?
-	#	pass
-	#else:
-	#	raise ReferenceError("No se encontró configuración requerida 'Sri Sequence' para la empresa "+ doc_object_build.company)
-		
-	if typeDocSri == "FAC":
-			
-			doc_data = build_doc_fac(doc_object_build.name)
-			
-			#print('-----------------------')
-			#print(doc_data.secuencial)
-			#print('-----------------------')
-	elif typeDocSri == "GRS":
-			doc_data = build_doc_grs(doc_object_build.name)
-			
-	elif typeDocSri == "CRE":
-			doc_data = build_doc_cre(doc_object_build.name)
-	
-	#TODO: Validacion de los datos previo al envío al SRI
-	#validate_doc(doc_data, typeDocSri, doctype_erpnext, siteName)
-
-	#Preparar documento enviarlo al servicio externo de autorización
-	#---------------------------------------------------------------
-	url_server_beebtech, server_timeout = get_api_url()
-
-	#print(url_server_beebtech)
-	
-	#Envío normal
-	#https://localhost:7037/api/v2/SriProcess/sendmethod
-	api_url = f"{url_server_beebtech}/SriProcess/sendmethod?tip_doc={typeDocSri}&sitename={siteName}" 
-	
-	#print(doc_data)
-	#print(api_url)
-
-	if (doc_data):
-		
-		doc_str = json.dumps(doc_data, default=str)		
-
-		headers = {}
-		#api_url = f"https://192.168.204.66:7037/api/v2/Download/{typeFile}?documentName={doc_name}&tip_doc={typeDocSri}&sitename={siteName}"	
-		#response = requests.post(api_url, json=doc_str, verify=False, stream=True, headers= headers)
-	
-		response = requests.post(api_url, data=doc_str, verify=False, stream=True, headers= headers, timeout=server_timeout)
-			#response = requests.post(api_url, json=doc_data, verify=False, stream=True, headers= headers)
-
-		#for k,v in r.raw.headers.items(): print(f"{k}: {v}")
-		#print(r.text)		
-		#print(response.text);
-		#print(response.status_code);
-			
-		#print(response)
-		#print(response.text)
-
-		print('Numero de respuesta')
-		
-		#print(response.text)
-
-		response_json = json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))		
-		response_xml_data = build_xml_from_dict(json.loads(response.text)['data'])
-		response_xml_data_string = response_xml_data
-		#print(response.status_code)
-		#print(response.ok)
-		response_ok = response.ok
-		
-		if(response.status_code == 400):
-			registerResponse(doc_data, typeDocSri, doctype_erpnext, response_json, response_xml_data_string)
-			if(response_json.data.numeroComprobantes is not None and int(response_json.data.numeroComprobantes) > 0):
-				if( not response_json.error is None and  'ya estaba autorizada' in response_json.error):
-					print ("correcto ya registrado previamente")					
-					response.status_code = 200
-					response_ok = True
-
-		if(response.status_code == 200):		
-			registerResponse(doc_data, typeDocSri, doctype_erpnext, response_json, response_xml_data_string)
-
-		if(response_ok and int(response_json.data.numeroComprobantes) > 0):
-			print ("correcto")
-			print(response_json)
-			print(response_json.data.claveAccesoConsultada)
-			print(response_json.data.numeroComprobantes)
-			print(response_json.data.autorizaciones.autorizacion[0].estado)
-			print(response_json.data.autorizaciones.autorizacion[0].numeroAutorizacion)
-			print(response_json.data.autorizaciones.autorizacion[0].fechaAutorizacion)
-			print(response_json.data.autorizaciones.autorizacion[0].ambiente)
-			if(response_json.data.autorizaciones.autorizacion[0].estado == "AUTORIZADO"):					
-				updateStatusDocument(doc_data, typeDocSri, response_json)
-		
-		#print(response_json.data)
-		
-		return response.text
-	
-		#api_url = "https://jsonplaceholder.typicode.com/todos/10"
-		#response = requests.get(api_url)
-		
-		#print(response.json());
-
-		#{'userId': 1, 'id': 10, 'title': 'illo est ... aut', 'completed': True}
-
-		#todo = {"userId": 1, "title": "Wash car", "completed": True}
-		#response = requests.put(api_url, json=todo)
-		#print(response.json())
-		#{'userId': 1, 'title': 'Wash car', 'completed': True, 'id': 10}
-
-		#frappe.msgprint(f"{xml_response_new.id} has been created.")
-		
 
 def build_xml_from_dict(data):
 	"""Convierte un diccionario en un XML plano (sin nodo raíz adicional)."""
@@ -839,91 +575,29 @@ def BuildSimulationResponse(clave_acceso=None, signed_ok=False):
 
 @frappe.whitelist()
 def send_doc_native(doc, typeDocSri, doctype_erpnext, siteName):
+	return send_doc_internal(doc, typeDocSri, doctype_erpnext, siteName)
 
-	doc_data = None
-
-	#NO SE OMITE ESTE PASO PORQUE SE REQUIERE EL NOMBRE DEL DOCUMENTO
-	doc_object_build = json.loads(doc, object_hook=lambda d: SimpleNamespace(**d))
-		
-	doc_data = get_doc_native(doc_object_build, doc_object_build.name, typeDocSri, doctype_erpnext, siteName)
-	
-	if (doc_data):
-		company_object = frappe.get_last_doc('Company', filters = { 'name': doc_data.company  })
-
-		sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'id': doc_data.ambiente })
-
-		if (sri_environment):
-
-			print(sri_environment.name)
-			print(sri_environment.id)
-		
-		regional_settings_ec = frappe.get_last_doc('Regional Settings Ec', filters = { 'name': company_object.regional_settings_ec })
-		print(regional_settings_ec)
-		print('regional_settings_ec.signature_tool')
-		print(regional_settings_ec.signature_tool)
-		if(regional_settings_ec):
-			if regional_settings_ec.use_external_service:
-				#Se utilizará el servicio externo
-				return send_doc_external(doc, typeDocSri, doctype_erpnext, siteName)
-			else:
-				#Se utilizará el servicio interno
-				return send_doc_internal(doc, typeDocSri, doctype_erpnext, siteName, regional_settings_ec)
-
-@frappe.whitelist()
-def send_doc_internal(doc, typeDocSri, doctype_erpnext, siteName, regional_settings_ec):
+def send_doc_internal(doc, typeDocSri, doctype_erpnext, siteName, regional_settings_ec=None):
 
 	doc_data = None
 
 	#NO SE OMITE ESTE PASO PORQUE SE REQUIERE EL NOMBRE DEL DOCUMENTO
 	doc_object_build = json.loads(doc, object_hook=lambda d: SimpleNamespace(**d))
 	
-	#TODO: Validacion de los datos previo al envío al SRI
-	#validate_doc(doc_data, typeDocSri, doctype_erpnext, siteName)
-	
 	doc_data = get_doc_native(doc_object_build, doc_object_build.name, typeDocSri, doctype_erpnext, siteName)
 
-	#Preparar documento enviarlo al servicio externo de autorización
-	#---------------------------------------------------------------
-	url_server_beebtech, server_timeout = get_api_url()
-
-	#print(url_server_beebtech)
-	
-	#print(doc_data)
-	#print(api_url)
-	
 	if (doc_data):
-		company_object = frappe.get_last_doc('Company', filters = { 'name': doc_data.company  })
+		settings = get_sri_settings(doc_data.company)
+		server_timeout = settings.timeout
 
+		# El ambiente (y con él la URL del SRI) viene del punto de emisión del documento
 		sri_environment = frappe.get_last_doc('Sri Environment', filters = { 'id': doc_data.ambiente })
-		print(sri_environment.name)
-		print(sri_environment.id)
- 
-		#sri_signatures = frappe.get_all('Sri Signature', filters={"tax_id": doc_data.tax_id}, fields = ['*'])
-		sri_signatures = frappe.get_all('Sri Signature', filters={"name": company_object.sri_signature}, fields = ['*'])
-
-		if(sri_signatures):
-			#signatureP12 = sri_signatures[0]
-			signatureP12 = json.dumps(sri_signatures[0], default=str)
-
-		#doc_str = json.dumps(doc_data, default=str)
 
 		xml_string = build_xml_data(doc_data, doc_data.name, typeDocSri, siteName)
 
-		#print('regional_settings_ec.signature_tool')
-		#print(regional_settings_ec.signature_tool)
+		signed_xml = firmar_xml(xml_string, settings, doc_data)
 
-		#Se firma el documento con la aplicacion externa XadesSignerCmd
-		if(regional_settings_ec.signature_tool == "XadesSignerCmd"):
-			signed_xml = SriXmlData.sign_xml_cmd(SriXmlData, xml_string, sri_signatures[0])
-
-		elif(regional_settings_ec.signature_tool == "Python Native (With Fails)"):
-			#signed_xml = SriXmlData.sign_xml(SriXmlData, xml_string, doc_data, sri_signatures[0])
-			#signed_xml = SriXmlData.sign_xml_xades(SriXmlData, xml_string, sri_signatures[0])			
-			signed_xml =XadesToolV4.sign_xml(SriXmlData, xml_string, doc_data, sri_signatures[0])
-	
-		print(xml_string)
-
-		if(company_object.use_simulation_mode):
+		if(settings.simulation):
 			# Simulación: se construyó el XML y se firmó, pero NO se envía al SRI
 			frappe.log_error(title=f"SRI simulación {doc_data.name}", message=signed_xml)
 			return BuildSimulationResponse(doc_data.claveAcceso, bool(signed_xml))

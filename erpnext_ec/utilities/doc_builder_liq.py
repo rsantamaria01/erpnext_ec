@@ -78,7 +78,7 @@ def build_doc_liq(doc_name):
 			doc.tipoIdentificacionProveedor = supplier_full['tipoIdentificacionProveedor']
 			doc.direccionProveedor = supplier_full['direccionProveedor']
 			supplier_phone = supplier_full['supplier_phone']
-			supplier_email_id = supplier_full['supplier_email_id']
+			supplier_email_id = supplier_full['supplier_email_id'] or company_full.get('defaultEmail') or ''
 
 		doc.supplier_phone = supplier_phone
 		doc.supplier_email_id = supplier_email_id

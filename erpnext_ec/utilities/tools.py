@@ -57,8 +57,6 @@ def validate_sri_settings():
     
     
     company_object = frappe.get_all('Company',fields=["*"],)
-    print('-----------------------------------')
-    print(company_object)
 
     for company_item in company_object:
         SettingsAreReady = True
@@ -87,16 +85,10 @@ def validate_sri_settings():
                            "type": "error"})
             SettingsAreReady = False
 
-        #regional_settings_ec = frappe.get_last_doc('Regional Settings Ec', filters = { 'name': company_item.regional_settings_ec })
-        if(company_item.regional_settings_ec):
-            header.append({"index": 0, "description": "Configuración", "value": company_item.regional_settings_ec})
-        else:
-            alerts.append({"index": 0, "description": "Configuración no seleccionada", "type":"error"})
-            SettingsAreReady = False
-
-        #print(regional_settings_ec)
-        #print('regional_settings_ec.signature_tool')
-        #print(regional_settings_ec.signature_tool)
+        header.append({"index": 0, "description": "Herramienta de firma", "value": company_item.get("sri_signature_tool") or "Python"})
+        header.append({"index": 0, "description": "Envío automático", "value": "Sí" if company_item.get("sri_send_auto") else "No"})
+        if company_item.get("use_simulation_mode"):
+            header.append({"index": 0, "description": "Modo simulación", "value": "Activo (no se envía al SRI)"})
 
         print_formats = frappe.get_all('Print Format', filters = { "name": ["in", ['Factura SRI','Retención SRI','Guía de Remisión SRI']] })
         #print('---------PRINTS')

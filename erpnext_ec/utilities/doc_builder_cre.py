@@ -81,7 +81,7 @@ def build_doc_cre(doc_name):
 			doc.tipoIdentificacionSujetoRetenido = supplier_full['tipoIdentificacionProveedor']
 			doc.direccionSujetoRetenido = supplier_full['direccionSujetoRetenido']
 			supplier_phone = supplier_full['supplier_phone']
-			supplier_email_id = supplier_full['supplier_email_id']
+			supplier_email_id = supplier_full['supplier_email_id'] or company_full.get('defaultEmail') or ''
 		
 		doc.infoAdicional = build_infoAdicional_sri(doc_name, supplier_email_id, supplier_phone)
 

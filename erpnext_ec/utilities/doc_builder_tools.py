@@ -184,6 +184,9 @@ def get_full_company_sri(def_company):
         compania_sri['granContribuyenteResolucion'] = getattr(doc, 'sri_gran_contribuyente_resolucion', '') or ''
         compania_sri['rucProveedor'] = getattr(doc, 'sri_ruc_proveedor', '') or ''
 
+        # Correo por defecto para clientes/proveedores sin correo (pestaña SRI de Compañía)
+        compania_sri['defaultEmail'] = doc.get('sri_default_email') or ''
+
         # El ambiente SRI ya no es de la compañía: lo define el punto de emisión
         # de cada documento (ver set_ambiente_sri).
 

@@ -1,7 +1,7 @@
 """Envío automático al SRI.
 
-Tarea programada (cada minuto) que, para cada compañía cuya configuración
-regional tenga activo "Envío automático al SRI", revisa si toca correr según el
+Tarea programada (cada minuto) que, para cada compañía que tenga activo
+"Envío automático al SRI" (pestaña SRI de Compañía), revisa si toca correr según el
 campo "Temporizador/Cron" (por defecto */5 * * * *) y envía las facturas y
 notas de crédito emitidas que todavía no se han enviado.
 
@@ -30,26 +30,16 @@ PAUSA_TRAS_FALLO_SEG = 3600
 
 
 def enviar_pendientes():
-	companias = frappe.get_all(
-		"Company", fields=["name", "regional_settings_ec", "use_simulation_mode"]
-	)
-	for compania in companias:
-		if not compania.regional_settings_ec or compania.use_simulation_mode:
+	from erpnext_ec.utilities.sri_settings import get_sri_settings
+
+	for compania in frappe.get_all("Company", pluck="name"):
+		ajustes = get_sri_settings(compania)
+		if ajustes.simulation or not ajustes.send_auto:
+			continue
+		if not _toca_ahora(ajustes.send_cron):
 			continue
 
-		ajustes = frappe.db.get_value(
-			"Regional Settings Ec",
-			compania.regional_settings_ec,
-			["send_sri_auto", "send_sri_batch_docs", "send_sri_cron"],
-			as_dict=True,
-		)
-		if not ajustes or not ajustes.send_sri_auto:
-			continue
-		if not _toca_ahora(ajustes.send_sri_cron):
-			continue
-
-		limite = ajustes.send_sri_batch_docs or 20
-		for factura in _pendientes(compania.name, limite):
+		for factura in _pendientes(compania, ajustes.send_batch_docs):
 			_enviar(factura)
 
 
