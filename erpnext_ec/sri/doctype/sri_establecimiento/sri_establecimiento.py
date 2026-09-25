@@ -8,8 +8,8 @@ from frappe.model.document import Document
 class SRIEstablecimiento(Document):
 	def validate(self):
 		self.record_name = (self.record_name or "").strip()
-		if not re.fullmatch(r"\d{3}", self.record_name):
-			frappe.throw(_("El código del establecimiento debe tener 3 dígitos (p. ej. 001)."))
+		if not re.fullmatch(r"\d{3}", self.record_name) or self.record_name == "000":
+			frappe.throw(_("El código del establecimiento debe tener 3 dígitos y ser mayor a 000 (p. ej. 001)."))
 
 		if not self.disabled:
 			duplicado = frappe.db.exists(

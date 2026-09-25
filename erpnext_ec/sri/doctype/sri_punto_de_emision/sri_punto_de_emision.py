@@ -8,8 +8,8 @@ from frappe.model.document import Document
 class SRIPuntodeEmision(Document):
 	def validate(self):
 		self.record_name = (self.record_name or "").strip()
-		if not re.fullmatch(r"\d{3}", self.record_name):
-			frappe.throw(_("El código del punto de emisión debe tener 3 dígitos (p. ej. 001)."))
+		if not re.fullmatch(r"\d{3}", self.record_name) or self.record_name == "000":
+			frappe.throw(_("El código del punto de emisión debe tener 3 dígitos y ser mayor a 000 (p. ej. 001)."))
 
 		if self.sri_environment_lnk != "DES":
 			self.test_dev_email = None

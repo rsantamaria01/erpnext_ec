@@ -4,16 +4,17 @@
 # En Compañía → SRI se indica cuántos establecimientos tiene el RUC (certificado
 # del SRI). Con ese número se mantienen los establecimientos 001..N y, en cada
 # uno, dos puntos de emisión por defecto:
-#   000 -> ambiente DES (pruebas)     001 -> ambiente PRO (producción)
+#   999 -> ambiente DES (pruebas)     001 -> ambiente PRO (producción)
+# (el SRI no acepta el punto 000: error 58 "El punto de emisión debe ser mayor a cero")
 # Se pueden agregar más puntos PRO a mano (002, 003, ...).
-# Lo que sobra (establecimientos fuera del RUC, puntos DES que no son 000) se
+# Lo que sobra (establecimientos fuera del RUC, puntos DES que no son 999) se
 # borra; solo si ya tiene documentos se deshabilita (no se puede borrar).
 
 import frappe
 from frappe import _
 from frappe.utils import cint
 
-PUNTO_DES = "000"
+PUNTO_DES = "999"
 PUNTO_PRO = "001"
 
 
@@ -93,7 +94,7 @@ def _asegurar_puntos(company, establecimiento, codigo_est):
 		order_by="creation asc",
 	)
 
-	# DES: un único punto de pruebas, con código 000. Los demás DES se borran
+	# DES: un único punto de pruebas, con código 999. Los demás DES se borran
 	# (o se deshabilitan si ya numeraron documentos).
 	for p in puntos:
 		if p.sri_environment_lnk == "DES" and p.record_name != PUNTO_DES:
