@@ -17,14 +17,15 @@ frappe.ui.form.on('SRI Firma Electronica', {
                 },
                 callback: function(r) 
                 {
-                    console.log(r);
-
-                    //jsonResponse = JSON.parse(r.message);
-                    //console.log(jsonResponse);
-                    frappe.show_alert({
-                        message: __(`Error al procesar firma:`),
-                        indicator: 'red'
-                    }, 10);
+                    let res = r.message || {};
+                    let refs = (res.referencias || []).map(x => `${x.uri}: ${x.ok ? "OK" : "FALLA"}`).join("<br>");
+                    frappe.msgprint({
+                        title: res.ok ? __("Firma correcta") : __("La firma no es válida"),
+                        indicator: res.ok ? "green" : "red",
+                        message: `${__("Certificado")}: ${frappe.utils.escape_html(res.certificado || "")}<br>`
+                            + `${__("Vence")}: ${res.vence || ""}<br>`
+                            + `${__("Firma RSA")}: ${res.firma_rsa ? "OK" : "FALLA"}<br>${refs}`,
+                    });
                 },
                 error: function(r) {
                     

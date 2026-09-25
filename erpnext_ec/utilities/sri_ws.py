@@ -43,21 +43,22 @@ from email.mime.text import MIMEText
 
 @frappe.whitelist()
 def test_signature(signature_doc):
-	#print ("----")
-	#print(signature_doc)
-	#Este metodo aun utiliza el api
-	doc_data = build_doc_fac('ACC-SINV-2024-00001')
-	#archivo XML de prueba
-	full_path_doc = '/opt/bench/frappe-bench/sites/principal/private/files/ACC-SINV-2024-00001.xml'
-	file = open(full_path_doc, "r")
-	doc_text = file.read()
-	file.close()
-	#print(doc_text)
+	"""Firma un comprobante de ejemplo con esta firma electrónica y verifica la
+	firma resultante (digests y firma RSA), sin enviar nada al SRI."""
+	from erpnext_ec.utilities.xades_tool_v4 import XadesToolV4, verificar_firma
 
-	#doc_text = get_doc('ACC-SINV-2024-00001', 'FAC', 'xml', 'principal')
-	signed_xml = SriXmlData.sign_xml(SriXmlData, doc_text, doc_data, signature_doc)
-	#print(signed_xml)
-	return signed_xml
+	datos = frappe.parse_json(signature_doc)
+	firma = frappe.get_doc("SRI Firma Electronica", datos.get("name"))
+	firma.check_permission("read")
+
+	ruc = "".join(ch for ch in (firma.tax_id or "") if ch.isdigit()) or "9999999999999"
+	xml = (
+		'<?xml version="1.0" encoding="UTF-8"?>\n'
+		'<factura id="comprobante" version="1.1.0"><infoTributaria><ambiente>1</ambiente>'
+		f"<razonSocial>PRUEBA DE FIRMA</razonSocial><ruc>{ruc}</ruc></infoTributaria></factura>"
+	)
+	firmado = XadesToolV4.sign_xml(XadesToolV4, xml, None, firma)
+	return verificar_firma(firmado)
 
 @frappe.whitelist()
 def verify_signature(signature_doc):	

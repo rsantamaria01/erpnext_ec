@@ -85,7 +85,6 @@ def validate_sri_settings():
                            "type": "error"})
             SettingsAreReady = False
 
-        header.append({"index": 0, "description": "Herramienta de firma", "value": company_item.get("sri_signature_tool") or "Python"})
         header.append({"index": 0, "description": "Envío automático", "value": "Sí" if company_item.get("sri_send_auto") else "No"})
         if company_item.get("use_simulation_mode"):
             header.append({"index": 0, "description": "Modo simulación", "value": "Activo (no se envía al SRI)"})

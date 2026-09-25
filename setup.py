@@ -24,7 +24,7 @@ setup(
         "erpnext_ec": [
             "**/*.json", "**/*.html", "**/*.js", "**/*.css", "**/*.xml", "**/*.xsd",
             "**/*.csv", "**/*.txt", "**/*.woff2", "**/*.png", "**/*.svg", "**/*.map",
-            "**/*.min.js", "XadesSignerCmd",
+            "**/*.min.js",
         ],
     },
 )

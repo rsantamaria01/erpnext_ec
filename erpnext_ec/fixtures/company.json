@@ -137,23 +137,11 @@
  {
   "doctype": "Custom Field",
   "dt": "Company",
-  "name": "Company-sri_signature_tool",
-  "fieldname": "sri_signature_tool",
-  "fieldtype": "Select",
-  "label": "Herramienta de firma",
-  "insert_after": "sri_signature",
-  "options": "Python\nXadesSignerCmd",
-  "default": "Python",
-  "is_custom_field": 1
- },
- {
-  "doctype": "Custom Field",
-  "dt": "Company",
   "name": "Company-sri_timeout",
   "fieldname": "sri_timeout",
   "fieldtype": "Int",
   "label": "Timeout SRI (segundos)",
-  "insert_after": "sri_signature_tool",
+  "insert_after": "sri_signature",
   "default": "10",
   "non_negative": 1,
   "is_custom_field": 1

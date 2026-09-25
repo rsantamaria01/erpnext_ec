@@ -10,7 +10,7 @@ Todo está en el workspace **SRI**, que es el único del app. Al abrirlo, el blo
 
 | Dónde | Qué se configura |
 |---|---|
-| **Compañía → pestaña SRI** | Datos del contribuyente (nombre comercial, RIMPE, contabilidad, agente de retención, gran contribuyente, RUC proveedor), firma electrónica, herramienta de firma, timeout, modo simulación, envío automático (lote y cron), correo por defecto para clientes sin correo, y formatos/plantillas del RIDE. |
+| **Compañía → pestaña SRI** | Datos del contribuyente (nombre comercial, RIMPE, contabilidad, agente de retención, gran contribuyente, RUC proveedor), firma electrónica, timeout, modo simulación, envío automático (lote y cron), correo por defecto para clientes sin correo, y formatos/plantillas del RIDE. |
 | **SRI Establecimiento** | Establecimientos registrados en el RUC (código de 3 dígitos). Se pueden **deshabilitar** en lugar de borrarlos. |
 | **SRI Punto de Emisión** | Puntos de emisión de cada establecimiento, con sus secuenciales. **El punto define el ambiente del documento**: `DES` (pruebas, celcer) o `PRO` (producción). Se pueden deshabilitar. |
 | **SRI Firma Electrónica** | Archivo `.p12` y su contraseña. |
@@ -27,14 +27,13 @@ No hay un interruptor DEV/PRO por compañía: cada documento toma el ambiente de
 
 #### Firma electrónica
 
-La **herramienta de firma** de la pestaña SRI puede ser:
+La firma es XAdES-BES con el firmador Python del app (`utilities/xades_tool_v4.py`, que usa `cryptography` y `lxml`). No depende de binarios externos.
 
-- `Python`: firma XAdES-BES nativa (`utilities/xades_tool_v4.py`, con `cryptography` y `lxml`). Verificada con `xmlsec1` sobre el XML que genera el app.
-- `XadesSignerCmd`: binario .NET heredado del proyecto original (`utilities/apps/XadesSignerCmd`). Se retirará cuando la firma Python quede confirmada con el SRI.
+El botón **Probar Firma** de *SRI Firma Electrónica* firma un comprobante de ejemplo con el certificado y verifica la firma sin enviar nada al SRI. Revisa los tres digests y la firma RSA, y muestra el certificado y su fecha de vencimiento.
 
 #### Envío automático
 
-Con **Envío automático al SRI** activo, una tarea programada que corre cada minuto revisa el cron configurado (por defecto `*/5 * * * *`). Cuando toca, envía las facturas y notas de crédito emitidas que aún no tienen respuesta del SRI, siempre que hayan pasado 3 minutos desde su última modificación. No corre en modo simulación.
+Con **Envío automático al SRI** activo, la tarea programada revisa el cron configurado (por defecto `*/5 * * * *`). En la primera corrida del scheduler después de cada instante del cron, envía las facturas y notas de crédito emitidas que aún no tienen respuesta del SRI, siempre que hayan pasado 3 minutos desde su última modificación. No corre en modo simulación.
 
 ### Instalación (bench v16)
 

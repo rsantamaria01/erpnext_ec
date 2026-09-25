@@ -18,12 +18,10 @@ from cryptography import x509 as x509_crypt
 
 #from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from erpnext_ec.utilities.xades_tool_v4 import sign_xml as sign_xml_xs
 
 from requests import Session
 import base64
 
-import subprocess
 import os
 import uuid
 
@@ -120,102 +118,6 @@ class SriXmlData():
             
             return p12
     
-    def sign_xml_cmd(self, xml_string_data, signature_doc):
-        
-        nombre_temporal = str(uuid.uuid4())
-
-        tmp_xml = frappe.get_site_path() + '/private/files/' + f'{nombre_temporal}.xml'
-        output_xml = frappe.get_site_path() + '/private/files/' + f'{nombre_temporal}_signed.xml'
-
-        with open(tmp_xml, "w") as text_file:
-            text_file.write(xml_string_data)
-
-        p12 = frappe.get_site_path() + signature_doc.p12        
-        from frappe.utils.password import get_decrypted_password       
-        password = get_decrypted_password('SRI Firma Electronica', signature_doc.name, "password")
-        
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-
-        # Nombre del archivo XSD
-        appPath = dir_path + "/apps/XadesSignerCmd/XadesSignerCmd"
-        tmpFolder = dir_path + "/apps/XadesSignerCmd/" 
-
-        # El binario fue compilado para .NET 6 (EOL); se permite correr en el runtime
-        # mayor más reciente instalado (probado con .NET 8 y 10).
-        env = dict(os.environ)
-        env.setdefault('DOTNET_ROLL_FORWARD', 'LatestMajor')
-
-        if not os.path.isfile(appPath) or not os.access(appPath, os.X_OK):
-            frappe.throw(f"Firmador no encontrado o sin permiso de ejecución: {appPath}")
-
-        try:
-            p = subprocess.run([appPath,
-                                '--fileinput', tmp_xml,
-                                '--p12', p12,
-                                '--password', password,
-                                '--output', output_xml],
-                               env=env, capture_output=True, text=True, timeout=120)
-        except Exception as e:
-            frappe.throw(f"No se pudo ejecutar XadesSignerCmd: {e}")
-
-        if p.returncode != 0 or not os.path.isfile(output_xml):
-            detalle = (p.stderr or p.stdout or '').strip()[-1500:]
-            try:
-                os.remove(tmp_xml)
-            except Exception:
-                pass
-            frappe.throw(f"XadesSignerCmd falló (código {p.returncode}):<br><pre>{frappe.utils.escape_html(detalle)}</pre>")
-
-        #Leer XML Firmado
-        file = open(output_xml, "r")
-        content = file.read()
-        #print(content)
-        file.close()
-        
-        #En caso de usar firmas UANATACA
-        #content = content.replace('organizationIdentifier=VATES-A66721499', '2.5.4.97=#0c0f56415445532d413636373231343939')
-
-        try:
-            os.remove(tmp_xml)
-            os.remove(output_xml)
-            #print("El archivo se ha eliminado exitosamente.")
-        except FileNotFoundError:
-            #print("El archivo no existe.")
-            pass
-        except Exception as e:
-            #print("Ocurrió un error al intentar eliminar el archivo:", e)
-            pass
-
-        return content
-
-    
-
-    def sign_xml_xades(self, xml_string_data, sri_signature_object):
-        
-        #doc_object_build = json.loads(signature_doc, object_hook=lambda d: SimpleNamespace(**d))
-
-        #sri_signatures = frappe.get_all('SRI Firma Electronica', fields='*', filters={'name': doc_object_build.name})
-        
-        #print(sri_signatures)        
-        
-        if(sri_signature_object):
-            #sri_signature_object = sri_signatures[0]
-            full_path_p12 = frappe.get_site_path() + sri_signature_object.p12
-            #print(full_path_p12)
-            from frappe.utils.password import get_decrypted_password
-            password = get_decrypted_password('SRI Firma Electronica', sri_signature_object.name, "password")
-            with open(full_path_p12, 'rb') as f:
-                p12 = f.read()
-                #print(pfx_data)
-
-        password = password.encode()
-        #print(type(xml_string_data))
-        #print("---------------------------------------------------")
-        signed = sign_xml_xs(p12, password, xml_string_data)
-
-        #print("signed: ", signed)
-        return signed
-
     def _clean_str(self, string_to_reeplace, list_characters=None):
         """
         Reemplaza caracteres por otros caracteres especificados en la lista

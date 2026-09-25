@@ -15,3 +15,4 @@ erpnext_ec.patches.v16_0.sri_ambiente_por_punto
 erpnext_ec.patches.v16_0.sri_config_en_compania
 erpnext_ec.patches.v16_0.sri_workspace_unico
 erpnext_ec.patches.v16_0.sri_nota_debito
+erpnext_ec.patches.v16_0.sri_solo_firma_python

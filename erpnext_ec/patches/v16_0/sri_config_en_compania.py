@@ -31,13 +31,10 @@ def execute():
 
 	for company in frappe.get_all("Company", pluck="name"):
 		rs = _rs_para(company)
-		valores = {"sri_timeout": 10, "sri_signature_tool": "Python"}
+		valores = {"sri_timeout": 10}
 		if rs:
 			valores.update(
 				{
-					"sri_signature_tool": "XadesSignerCmd"
-					if rs.get("signature_tool") == "XadesSignerCmd"
-					else "Python",
 					"sri_timeout": rs.get("server_timeout") or 10,
 					"sri_send_auto": rs.get("send_sri_auto") or 0,
 					"sri_send_batch_docs": rs.get("send_sri_batch_docs") or 20,

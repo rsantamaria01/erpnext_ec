@@ -28,7 +28,7 @@ packages = { find = { where = ["."], include = ["erpnext_ec*"] } }
 "erpnext_ec" = [
     "**/*.json", "**/*.html", "**/*.js", "**/*.css", "**/*.xml", "**/*.xsd",
     "**/*.csv", "**/*.txt", "**/*.woff2", "**/*.png", "**/*.svg", "**/*.map",
-    "**/*.min.js", "XadesSignerCmd",
+    "**/*.min.js",
 ]
 
 [tool.setuptools.package-dir]

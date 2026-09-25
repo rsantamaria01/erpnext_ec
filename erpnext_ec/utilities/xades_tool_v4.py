@@ -197,6 +197,52 @@ def sign_xml(p12_data: bytes, password: bytes, xml: Union[str, bytes]) -> str:
     return '<?xml version="1.0" encoding="UTF-8"?>\n' + etree.tostring(root, encoding="unicode")
 
 
+def verificar_firma(signed_xml: Union[str, bytes]) -> dict:
+    """Verifica una firma XAdES-BES producida por sign_xml: los tres digests
+    (comprobante, SignedProperties, KeyInfo) y la firma RSA del SignedInfo con el
+    certificado incluido. Es la misma validación criptográfica que hace el SRI
+    (sin la cadena de confianza de la entidad certificadora)."""
+    import copy
+    if isinstance(signed_xml, str):
+        signed_xml = signed_xml.encode("utf-8")
+    root = etree.fromstring(signed_xml, etree.XMLParser(remove_blank_text=False, resolve_entities=False))
+    ns = {"ds": DS_NS, "etsi": ETSI_NS}
+    firma = root.find("ds:Signature", ns)
+    if firma is None:
+        return {"ok": False, "detalle": "El XML no tiene ds:Signature"}
+
+    por_id = {el.get("Id"): el for el in root.iter() if el.get("Id")}
+    resultados = []
+    for ref in firma.find("ds:SignedInfo", ns).findall("ds:Reference", ns):
+        uri = ref.get("URI", "")
+        esperado = ref.find("ds:DigestValue", ns).text.strip()
+        if uri == "#comprobante":
+            copia = copy.deepcopy(root)
+            copia.remove(copia.find("ds:Signature", ns))
+            calculado = sha1_base64(_c14n(copia))
+        else:
+            calculado = sha1_base64(_c14n(por_id[uri[1:]]))
+        resultados.append((uri, calculado == esperado))
+
+    cert_b64 = "".join(firma.find(".//ds:X509Certificate", ns).text.split())
+    cert = x509.load_der_x509_certificate(base64.b64decode(cert_b64))
+    sig = base64.b64decode("".join(firma.find("ds:SignatureValue", ns).text.split()))
+    try:
+        cert.public_key().verify(sig, _c14n(firma.find("ds:SignedInfo", ns)), padding.PKCS1v15(), SHA1())
+        rsa_ok = True
+    except Exception:
+        rsa_ok = False
+
+    ok = rsa_ok and all(r[1] for r in resultados)
+    return {
+        "ok": ok,
+        "referencias": [{"uri": u, "ok": v} for u, v in resultados],
+        "firma_rsa": rsa_ok,
+        "certificado": cert.subject.rfc4514_string(),
+        "vence": cert.not_valid_after_utc.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+
 # Integración con ERPNext
 import frappe
 from frappe.utils.password import get_decrypted_password

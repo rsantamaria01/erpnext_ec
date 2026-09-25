@@ -169,7 +169,6 @@ def build_xml_signed(doc_name, typeDocSri, typeFile, siteName):
     # 2) luego convertirlo a la estructura compatible con el SRI
     #data = {}
     #xml_string = build_xml_data(data, doc_name, typeDocSri, typeFile, siteName)
-#    signed_xml = SriXmlData.sign_xml_cmd(SriXmlData, xml_string, data, signature_doc)
 #    return signed_xml
 
 @frappe.whitelist()

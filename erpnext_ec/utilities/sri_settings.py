@@ -14,7 +14,6 @@ def get_sri_settings(company):
 	return frappe._dict(
 		company=company,
 		signature=c.get("sri_signature"),
-		signature_tool=c.get("sri_signature_tool") or "Python",
 		timeout=cint(c.get("sri_timeout")) or TIMEOUT_POR_DEFECTO,
 		simulation=cint(c.get("use_simulation_mode")),
 		send_auto=cint(c.get("sri_send_auto")),
@@ -25,7 +24,7 @@ def get_sri_settings(company):
 
 
 def firmar_xml(xml_string, settings, doc_data=None):
-	"""Firma el comprobante con la firma electrónica y la herramienta de la compañía."""
+	"""Firma el comprobante (XAdES-BES, firmador Python nativo) con la firma electrónica de la compañía."""
 	from frappe import _
 
 	if not settings.signature:
@@ -34,11 +33,6 @@ def firmar_xml(xml_string, settings, doc_data=None):
 	firmas = frappe.get_all("SRI Firma Electronica", filters={"name": settings.signature}, fields=["*"])
 	if not firmas:
 		frappe.throw(_("No existe la firma electrónica {0}.").format(settings.signature))
-
-	if settings.signature_tool == "XadesSignerCmd":
-		from erpnext_ec.utilities.signature_tool import SriXmlData
-
-		return SriXmlData.sign_xml_cmd(SriXmlData, xml_string, firmas[0])
 
 	from erpnext_ec.utilities.xades_tool_v4 import XadesToolV4
 
