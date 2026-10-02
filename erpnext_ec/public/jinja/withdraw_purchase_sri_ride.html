@@ -4,25 +4,28 @@
 {% set nro_aut = b.numeroAutorizacion or b.numeroautorizacion %}
 {% set autorizado = nro_aut and nro_aut|string != '0' %}
 <style>
-  .ride { font-family: "DejaVu Sans", Arial, Helvetica, sans-serif; font-size: 10px; color: #1f2328; line-height: 1.35; }
-  .ride table { width: 100%; border-collapse: collapse; border-spacing: 0; }
-  .ride table td, .ride table th { padding: 3px 6px; vertical-align: top; border: 0; }
-  .ride .box { border: 1px solid #c9ced6; }
-  .ride .gris { background: #f3f4f6; }
-  .ride .t { font-size: 8px; color: #57606a; text-transform: uppercase; letter-spacing: .3px; }
-  .ride .emisor-nombre { font-size: 13px; font-weight: bold; color: #0b5394; padding-bottom: 4px; }
-  .ride .doc-tipo { font-size: 14px; font-weight: bold; color: #0b5394; }
-  .ride .num { font-size: 12px; font-weight: bold; }
-  .ride .mono { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: 8.5px; word-wrap: break-word; }
-  .ride .sep { height: 8px; }
-  .ride .det th { background: #0b5394; color: #fff; font-size: 8px; text-transform: uppercase; padding: 4px 6px; text-align: left; }
-  .ride .det td { border-bottom: 1px solid #e3e6ea; }
-  .ride .r, .ride .det th.r { text-align: right; }
-  .ride .c, .ride .det th.c { text-align: center; }
-  .ride .tot td { border-bottom: 1px solid #e3e6ea; }
-  .ride .tot .fin td { background: #0b5394; color: #fff; font-weight: bold; font-size: 11px; border: 0; }
-  .ride .aviso { background: #fff4e5; color: #8a5300; font-weight: bold; padding: 4px 6px; text-align: center; }
-  .ride .sub { font-size: 10px; font-weight: bold; color: #0b5394; padding: 5px 6px; }
+  .ride { font-family: "DejaVu Sans", Arial, Helvetica, sans-serif !important; font-size: 10px !important; color: #1f2328 !important; line-height: 1.35 !important; }
+  .ride table { width: 100% !important; border-collapse: collapse !important; border-spacing: 0 !important; }
+  .ride table td, .ride table th { padding: 3px 6px !important; vertical-align: top !important; border: 0 !important; }
+  .ride .box { border: 1px solid #c9ced6 !important; }
+  .ride .gris { background: #f3f4f6 !important; }
+  .ride .t { font-size: 8px !important; color: #57606a !important; text-transform: uppercase !important; letter-spacing: .3px !important; }
+  .ride .emisor-nombre { font-size: 13px !important; font-weight: bold !important; color: #0b5394 !important; padding-bottom: 4px !important; }
+  .ride .doc-tipo { font-size: 14px !important; font-weight: bold !important; color: #0b5394 !important; }
+  .ride .num { font-size: 12px !important; font-weight: bold !important; }
+  .ride .mono { font-family: "DejaVu Sans Mono", Consolas, monospace !important; font-size: 8.5px !important; word-wrap: break-word !important; }
+  .ride .sep { height: 8px !important; }
+  .ride .det th { background: #0b5394 !important; color: #fff !important; font-size: 8px !important; text-transform: uppercase !important; padding: 4px 6px !important; text-align: left !important; }
+  .ride .det td { border-bottom: 1px solid #e3e6ea !important; }
+  .ride .r, .ride .det th.r { text-align: right !important; }
+  .ride .c, .ride .det th.c { text-align: center !important; }
+  .ride .tot td { border-bottom: 1px solid #e3e6ea !important; }
+  .ride .tot .fin td { background: #0b5394 !important; color: #fff !important; font-weight: bold !important; font-size: 11px !important; border: 0 !important; }
+  .ride .aviso { background: #fff4e5 !important; color: #8a5300 !important; font-weight: bold !important; padding: 4px 6px !important; text-align: center !important; }
+  .ride .sub { font-size: 10px !important; font-weight: bold !important; color: #0b5394 !important; padding: 5px 6px !important; }
+  .ride td.gap { width: 1.5% !important; padding: 0 !important; border: 0 !important; background: none !important; }
+  .ride .sec { border-top: 1px solid #c9ced6 !important; }
+  .ride, .ride * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 </style>
 
 <div class="ride">
@@ -33,10 +36,10 @@
 
 <table>
   <tr>
-    <td style="width:52%; padding:0 8px 0 0;">
-      <table class="box">
-        <tr><td style="padding:8px;">
-          {% if logo_path %}<img src="{{ get_full_url() + logo_path }}" style="max-height:55px; max-width:220px; margin-bottom:6px;"/><br/>{% endif %}
+    <td class="box" style="width:50.5% !important; padding:0 !important;">
+      <table>
+        <tr><td style="padding:8px !important;">
+          {% if logo_path %}<img src="{{ get_full_url() + logo_path }}" style="max-height:55px !important; max-width:220px !important; margin-bottom:6px !important;"/><br/>{% endif %}
           <div class="emisor-nombre">{{ b.razonSocial or doc.company }}</div>
           {% if b.nombreComercial and b.nombreComercial != b.razonSocial %}<div>{{ b.nombreComercial }}</div>{% endif %}
           <div><b>RUC:</b> {{ b.tax_id }}</div>
@@ -50,23 +53,24 @@
         </td></tr>
       </table>
     </td>
-    <td style="width:48%; padding:0;">
-      <table class="box gris">
-        <tr><td style="padding:8px 8px 2px 8px;"><span class="doc-tipo">COMPROBANTE DE RETENCI&Oacute;N</span></td></tr>
-        <tr><td style="padding:0 8px;"><span class="t">No.</span> <span class="num">{{ num }}</span></td></tr>
-        <tr><td style="padding:6px 8px 0 8px;" class="t">N&uacute;mero de autorizaci&oacute;n</td></tr>
-        <tr><td style="padding:0 8px;" class="mono">{{ nro_aut if autorizado else 'PENDIENTE' }}</td></tr>
-        <tr><td style="padding:6px 8px 0 8px;">
+    <td class="gap"></td>
+    <td class="box gris" style="width:48% !important; padding:0 !important;">
+      <table>
+        <tr><td style="padding:8px 8px 2px 8px !important;"><span class="doc-tipo">COMPROBANTE DE RETENCI&Oacute;N</span></td></tr>
+        <tr><td style="padding:0 8px !important;"><span class="t">No.</span> <span class="num">{{ num }}</span></td></tr>
+        <tr><td style="padding:6px 8px 0 8px !important;" class="t">N&uacute;mero de autorizaci&oacute;n</td></tr>
+        <tr><td style="padding:0 8px !important;" class="mono">{{ nro_aut if autorizado else 'PENDIENTE' }}</td></tr>
+        <tr><td style="padding:6px 8px 0 8px !important;">
           <span class="t">Fecha y hora de autorizaci&oacute;n:</span>
           {{ b.fechaautorizacion if autorizado and b.fechaautorizacion else '&mdash;' }}
         </td></tr>
-        <tr><td style="padding:2px 8px 0 8px;"><span class="t">Ambiente:</span> {{ 'PRODUCCI&Oacute;N' if b.ambiente|string == '2' else 'PRUEBAS' }} &nbsp; <span class="t">Emisi&oacute;n:</span> NORMAL</td></tr>
-        {% if doc.sri_placa and doc.sri_placa|string != '0' %}<tr><td style="padding:2px 8px 0 8px;"><span class="t">Placa:</span> {{ doc.sri_placa }}</td></tr>{% endif %}
-        <tr><td style="padding:6px 8px 0 8px;" class="t">Clave de acceso</td></tr>
-        <tr><td style="padding:2px 8px 0 8px;" class="c">
-          {% if b.numeroautorizacion_img %}<img src="data:image/png;base64,{{ b.numeroautorizacion_img }}" style="width:100%; height:42px;"/>{% endif %}
+        <tr><td style="padding:2px 8px 0 8px !important;"><span class="t">Ambiente:</span> {{ 'PRODUCCI&Oacute;N' if b.ambiente|string == '2' else 'PRUEBAS' }} &nbsp; <span class="t">Emisi&oacute;n:</span> NORMAL</td></tr>
+        {% if doc.sri_placa and doc.sri_placa|string != '0' %}<tr><td style="padding:2px 8px 0 8px !important;"><span class="t">Placa:</span> {{ doc.sri_placa }}</td></tr>{% endif %}
+        <tr><td style="padding:6px 8px 0 8px !important;" class="t">Clave de acceso</td></tr>
+        <tr><td style="padding:2px 8px 0 8px !important;" class="c">
+          {% if b.numeroautorizacion_img %}<img src="data:image/png;base64,{{ b.numeroautorizacion_img }}" style="width:100% !important; height:42px !important;"/>{% endif %}
         </td></tr>
-        <tr><td style="padding:0 8px 8px 8px;" class="c mono">{{ b.claveAcceso }}</td></tr>
+        <tr><td style="padding:0 8px 8px 8px !important;" class="c mono">{{ b.claveAcceso }}</td></tr>
       </table>
     </td>
   </tr>
@@ -75,8 +79,8 @@
 <div class="sep"></div>
 <table class="box">
   <tr>
-    <td style="width:62%;"><span class="t">Sujeto retenido:</span> <b>{{ b.razonSocialSujetoRetenido }}</b></td>
-    <td style="width:38%;"><span class="t">RUC / CI:</span> <b>{{ b.identificacionSujetoRetenido }}</b></td>
+    <td style="width:62% !important;"><span class="t">Sujeto retenido:</span> <b>{{ b.razonSocialSujetoRetenido }}</b></td>
+    <td style="width:38% !important;"><span class="t">RUC / CI:</span> <b>{{ b.identificacionSujetoRetenido }}</b></td>
   </tr>
   <tr>
     <td><span class="t">Direcci&oacute;n:</span> {{ b.direccionSujetoRetenido or '' }}</td>
@@ -92,13 +96,13 @@
 <div class="sep"></div>
 <table class="det box">
   <tr>
-    <th style="width:12%;">Comprobante</th>
-    <th style="width:20%;">N&uacute;mero</th>
-    <th style="width:11%;">Fecha emisi&oacute;n</th>
-    <th style="width:14%;" class="r">Base imponible</th>
-    <th style="width:17%;">C&oacute;digo retenci&oacute;n</th>
-    <th style="width:10%;" class="r">% retenci&oacute;n</th>
-    <th style="width:16%;" class="r">Valor retenido</th>
+    <th style="width:12% !important;">Comprobante</th>
+    <th style="width:20% !important;">N&uacute;mero</th>
+    <th style="width:11% !important;">Fecha emisi&oacute;n</th>
+    <th style="width:14% !important;" class="r">Base imponible</th>
+    <th style="width:17% !important;">C&oacute;digo retenci&oacute;n</th>
+    <th style="width:10% !important;" class="r">% retenci&oacute;n</th>
+    <th style="width:16% !important;" class="r">Valor retenido</th>
   </tr>
   {% for it in b.impuestos %}
   <tr>
@@ -116,17 +120,18 @@
 <div class="sep"></div>
 <table>
   <tr>
-    <td style="width:56%; padding:0 8px 0 0;">
-      <table class="box">
+    <td class="box" style="width:55% !important; padding:0 !important;">
+      <table>
         <tr class="gris"><td colspan="2"><b>Informaci&oacute;n adicional</b></td></tr>
         {% for ia in b.infoAdicional %}{% if ia.valor %}
-        <tr><td style="width:28%;" class="t">{{ ia.nombre }}</td><td>{{ ia.valor }}</td></tr>
+        <tr><td style="width:28% !important;" class="t">{{ ia.nombre }}</td><td>{{ ia.valor }}</td></tr>
         {% endif %}{% endfor %}
         {% if b.rucProveedor %}<tr><td class="t">RUC proveedor</td><td>{{ b.rucProveedor }}</td></tr>{% endif %}
       </table>
     </td>
-    <td style="width:44%; padding:0;">
-      <table class="box tot">
+    <td class="gap"></td>
+    <td class="box" style="width:43.5% !important; padding:0 !important;">
+      <table class="tot">
         <tr class="fin"><td>TOTAL RETENIDO (USD)</td><td class="r">{{ '{:,.2f}'.format((b.total_valorRetenido or 0)|float) }}</td></tr>
       </table>
     </td>

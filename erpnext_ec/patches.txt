@@ -21,3 +21,4 @@ erpnext_ec.patches.v16_0.sri_limpiar_establecimientos
 erpnext_ec.patches.v16_0.sri_punto_des_999
 erpnext_ec.patches.v16_0.sri_punto_titulo
 erpnext_ec.patches.v16_0.sri_razon_social_tercero
+erpnext_ec.patches.v16_0.sri_ride_bordes_alineados
