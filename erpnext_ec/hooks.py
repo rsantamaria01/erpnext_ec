@@ -85,6 +85,12 @@ doc_events = {
 	"Company": {
 		"on_update": "erpnext_ec.utilities.sri_establecimientos.on_company_update",
 	},
+	"Customer": {
+		"validate": "erpnext_ec.utilities.sri_identificacion.validate",
+	},
+	"Supplier": {
+		"validate": "erpnext_ec.utilities.sri_identificacion.validate",
+	},
 }
 
 # Envío automático al SRI: corre cada minuto y decide según el cron de

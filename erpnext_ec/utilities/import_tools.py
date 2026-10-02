@@ -36,8 +36,8 @@ def evaluate_supplier(create_if_not_exists, tax_id, supplier_name, nombreComerci
         new_data = frappe.get_doc({
             "doctype": "Supplier",
             "tax_id":  tax_id,
-            "name":  supplier_name,
-            "nombreComercial":  nombreComercial,
+            "typeidtax":  "04",
+            "supplier_name":  supplier_name,
             "primary_address":  dirMatriz,
             "is_internal_supplier":  0,
             "is_transporter":  0,

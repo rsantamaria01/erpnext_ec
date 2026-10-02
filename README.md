@@ -14,6 +14,7 @@ Todo está en el workspace **SRI**, que es el único del app. Al abrirlo, el blo
 | **Establecimientos en el RUC** (pestaña SRI) | Cuántos establecimientos abiertos tiene el RUC según el certificado del SRI. Al guardar, el app mantiene los establecimientos 001..N y, en cada uno, dos puntos de emisión por defecto: **999 (DES, pruebas)** y **001 (PRO, producción)**. Nunca se crean establecimientos fuera del RUC: lo que sobra se **borra**, y solo si ya tiene documentos se deshabilita (se borrará al sincronizar cuando ya no los tenga). El botón *Sincronizar con el RUC* de la lista de establecimientos hace lo mismo. |
 | **SRI Punto de Emisión** | Secuenciales de cada punto. **El punto define el ambiente del documento**: `DES` (pruebas, celcer) o `PRO` (producción). Se pueden agregar más puntos PRO a mano (002, 003…). El SRI no acepta el punto 000. Un punto deshabilitado no numera documentos nuevos, pero sus documentos anteriores se pueden reimprimir y reenviar. |
 | **SRI Firma Electrónica** | Archivo `.p12` y su contraseña. |
+| **Cliente / Proveedor → pestaña Impuesto** | Sección **Identificación SRI**: tipo de identificación, identificación (RUC, cédula, pasaporte; consumidor final 9999999999999) y **Razón social (SRI)**, que solo se llena si el nombre legal difiere del nombre del tercero. Si el tipo queda vacío se deduce del número (13 dígitos = RUC, 10 = cédula). Al guardar se exige el formato; el dígito verificador solo avisa. El correo y la dirección del XML salen de la dirección principal del tercero. |
 
 #### Ambiente por punto de emisión
 

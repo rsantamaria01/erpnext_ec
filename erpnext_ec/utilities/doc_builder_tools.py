@@ -10,6 +10,7 @@ import json
 from types import SimpleNamespace
 import requests
 from erpnext_ec.utilities.encryption import encrypt_string
+from erpnext_ec.utilities.sri_identificacion import datos_comprador
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -302,42 +303,11 @@ def get_full_customer_sri(def_customer):
     if docs:
         doc = docs[0]
         #print(doc)
+        # Identificación SRI (pestaña Impuesto). "Razón social (SRI)" solo se
+        # llena si el nombre legal difiere del nombre del cliente.
         customer_sri['customer_tax_id'] = doc.tax_id
-        if(doc.nombrecomercial):
-            customer_sri['customer_name'] = doc.nombrecomercial
-        else:
-            customer_sri['customer_name'] = doc.name
-
-
-        should_update_typeidtax = False
-
-        if len(doc.typeidtax) > 2:
-            print(doc.typeidtax[:2])
-            doc.typeidtax = doc.typeidtax[:2]
-            should_update_typeidtax = True        
-        
-        if len(doc.typeidtax) == 0:            
-            doc.typeidtax = '04'
-            #Cuando el campo typeidtax esta vacio
-            if(len(doc.tax_id) == 10):
-                #Se asumira que es CEDULA
-                doc.typeidtax = '05'
-            #if(len(doc.tax_id) == 13):
-                #Se asumira que es RUC
-            #    doc.typeidtax = '04'
-            
-            should_update_typeidtax = True
-        
-
-        #Se fuerza la actualizacion del dato del cliente
-        # para que tenga seleccionado un RUC o CEDULA
-        # ya que si el dato esta siendo migrado desde el modo viejo
-        # habran datos almacenados similares a 04 RUC (debe ser solo 04)
-        # o estará vacío
-        if (should_update_typeidtax):
-            document_for_update = frappe.get_last_doc('Customer', filters = { 'name': doc.name})
-            if(document_for_update):
-                document_for_update.db_set('typeidtax', doc.typeidtax)
+        customer_sri['customer_name'] = doc.nombrecomercial or doc.customer_name or doc.name
+        doc.typeidtax = datos_comprador(doc.name, doc.tax_id, doc.typeidtax, 'El cliente')
 
         customer_sri['tipoIdentificacionComprador'] = doc.typeidtax
         customer_sri['customer_email_id']  = ''
@@ -405,16 +375,11 @@ def get_full_supplier_sri(def_customer):
 
     if docs:
         doc = docs[0]
-        print(doc)
-        #print(doc)
         #print('doc.typeidtax')
         #print(doc.typeidtax)
         supplier_sri['supplier_tax_id'] = doc.tax_id
-        if(doc.nombrecomercial):
-            supplier_sri['supplier_name'] = doc.nombrecomercial
-        else:
-            supplier_sri['supplier_name'] = doc.supplier_name
-        supplier_sri['tipoIdentificacionProveedor'] = doc.typeidtax
+        supplier_sri['supplier_name'] = doc.nombrecomercial or doc.supplier_name or doc.name
+        supplier_sri['tipoIdentificacionProveedor'] = datos_comprador(doc.name, doc.tax_id, doc.typeidtax, 'El proveedor')
         supplier_sri['supplier_email_id']  = ''
         supplier_sri['supplier_phone']  = ''
         
