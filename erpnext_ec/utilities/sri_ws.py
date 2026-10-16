@@ -229,6 +229,11 @@ def add_email_quote(doc_name, recipients, msg, title, typeDocSri, doctype_erpnex
 				"'Test Dev Environment Email'. No se envía al cliente.").format(doc_data.name))
 		recipients = doc_data.test_dev_email
 
+	if not recipients:
+		# Sin email del cliente/proveedor: no se envía (el SRI no exige email; se entrega el RIDE impreso)
+		frappe.get_doc(doc_data.doctype, doc_data.name).add_comment("Comment", _("Comprobante sin email del destinatario: no se envió por correo. Entregar el RIDE impreso."))
+		return
+
 	print("recipients final:")
 	print(recipients)
 	sendmail(doc_data, recipients, email_subject, msg_template, attachments)	        

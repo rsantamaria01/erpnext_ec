@@ -52,8 +52,7 @@ def validate_sales_invoice(doc_name):
         documentIsReady = False
 
     if (doc.direccionComprador != None and (doc.customer_email_id == "" or doc.customer_email_id == None )):        
-        alerts.append({"index": 0, "description": "No se ha definido Email del cliente", "type":"error"})
-        documentIsReady = False
+        alerts.append({"index": 0, "description": "Cliente sin email: el comprobante no se enviará por correo; entregue el RIDE impreso", "type":"warning"})
 
     print(doc.estab)
 
@@ -197,8 +196,7 @@ def validate_purchase_whithold_sri_ec(doc_name):
     #    documentIsReady = False
 
     if (doc.direccionComprador != None and (doc.customer_email_id == "" or doc.customer_email_id == None )):        
-        alerts.append({"index": 0, "description": "No se ha definido Email del cliente", "type":"error"})
-        documentIsReady = False
+        alerts.append({"index": 0, "description": "Cliente sin email: el comprobante no se enviará por correo; entregue el RIDE impreso", "type":"warning"})
 
     print(doc.estab)
 
@@ -265,8 +263,7 @@ def validate_purchase_settlement(doc_name):
         documentIsReady = False
 
     if (doc.direccionProveedor != None and (doc.supplier_email_id == "" or doc.supplier_email_id == None )):        
-        alerts.append({"index": 0, "description": "No se ha definido Email del proveedor", "type":"error"})
-        documentIsReady = False
+        alerts.append({"index": 0, "description": "Proveedor sin email: el comprobante no se enviará por correo; entregue el RIDE impreso", "type":"warning"})
 
     print(doc.estab)
 

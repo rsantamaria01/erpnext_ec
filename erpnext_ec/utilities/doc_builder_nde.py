@@ -72,7 +72,7 @@ def build_doc_nde(doc_name):
 		doc.tipoIdentificacionComprador = customer_full['tipoIdentificacionComprador']
 		doc.direccionComprador = customer_full['direccionComprador']
 		customer_phone = customer_full['customer_phone']
-		customer_email_id = customer_full['customer_email_id'] or company_full.get('defaultEmail') or ''
+		customer_email_id = customer_full['customer_email_id'] or ''
 
 		doc.customer_phone = customer_phone
 		doc.customer_email_id = customer_email_id
