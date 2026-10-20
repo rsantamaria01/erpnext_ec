@@ -1,0 +1,23 @@
+{
+ "app": "erpnext_ec",
+ "creation": "2026-10-20 12:00:00",
+ "docstatus": 0,
+ "doctype": "Dock",
+ "idx": 0,
+ "items": [
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "receipt-card-soft",
+   "link_to": "SRI",
+   "link_type": "Sidebar",
+   "title": "SRI"
+  }
+ ],
+ "modified": "2026-10-20 12:00:00.000000",
+ "modified_by": "Administrator",
+ "name": "erpnext_ec",
+ "owner": "Administrator",
+ "standard": 1,
+ "user": ""
+}
