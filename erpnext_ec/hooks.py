@@ -8,18 +8,6 @@ required_apps = [
 	"erpnext"
 ]
 
-# Icono propio en la pantalla de aplicaciones de /desk (Frappe v16+).
-# La barra lateral "SRI" y el dock de la app se publican en sri/sidebar y dock/.
-app_home = "/desk/sri"
-add_to_apps_screen = [
-	{
-		"name": "erpnext_ec",
-		"logo": "/assets/erpnext_ec/images/sri.svg",
-		"title": "SRI",
-		"route": app_home,
-		"has_permission": "erpnext_ec.utilities.app_permission.check_app_permission",
-	}
-]
 
 # Includes in <head>
 # ------------------
